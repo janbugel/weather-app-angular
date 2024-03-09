@@ -1,3 +1,20 @@
+
+## Configuration 
+
+- [x] ng new <project_name>
+- [x] ng add @angular/material
+- [x] ng generate component <component_name>
+
+## Features to Implement
+
+- [ ] Integrate Open Weather API
+- [ ] Design UI using Angular Material components
+- [ ] Implement functionality to switch between Fahrenheit and Celsius
+- [ ] Create a graph to display temperature over time
+- [ ] Display past weather and forecast timeline
+- [ ] Calculate Feel Temperature (heat index)
+
+
 # WeatherAppAngular
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.2.3.
