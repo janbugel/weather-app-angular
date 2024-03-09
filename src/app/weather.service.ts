@@ -6,17 +6,12 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class WeatherService {
-  private baseUrl = 'https://api.open-meteo.com';
+  private baseUrl = 'https://api.open-meteo.com/v1';
 
   constructor(private http: HttpClient) { }
 
-  getWeatherForecast(): Observable<any> {
-    const url = `${this.baseUrl}/v1/forecast?latitude=51.5074&longitude=-0.1278&hourly=temperature_2m,relative_humidity,pressure_surface_level`;
-    return this.http.get(url);
-  }
-
-  getWeatherHistory(startDate: string, endDate: string): Observable<any> {
-    const url = `${this.baseUrl}/v1/history?latitude=51.5074&longitude=-0.1278&start=${startDate}&end=${endDate}&hourly=temperature_2m,relative_humidity,pressure_surface_level`;
+  getWeatherForecast(latitude: number, longitude: number): Observable<any> {
+    const url = `${this.baseUrl}/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m`;
     return this.http.get(url);
   }
 }

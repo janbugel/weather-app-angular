@@ -6,5 +6,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./tabs.component.sass']
 })
 export class TabsComponent {
+activeTab: any;
   constructor() {}
 }

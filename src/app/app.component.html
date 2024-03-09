@@ -1,6 +1,17 @@
 <div class="app-container">
   <h1>{{ title }}</h1>
-  <app-weather-table></app-weather-table> <!-- Add this line to include the WeatherTableComponent -->
-  <app-tabs></app-tabs>
+  <div class="tab-container">
+    <mat-tab-group>
+      <mat-tab label="Weather Table">
+        <app-weather-table></app-weather-table>
+      </mat-tab>
+      <mat-tab label="Temperature Chart">
+        <app-temperature-chart></app-temperature-chart>
+      </mat-tab>
+      <mat-tab label="Heat Index Calculator">
+        <app-heat-index-calculator></app-heat-index-calculator>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
 </div>
 <router-outlet></router-outlet>

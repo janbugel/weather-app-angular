@@ -7,7 +7,7 @@ import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index
 const routes: Routes = [
   { path: '', redirectTo: '/weather-table', pathMatch: 'full' },
   { path: 'weather-table', component: WeatherTableComponent },
-  { path: 'temperature-chart', component: TemperatureChartComponent },
+  { path: 'temperature-chart', component: TemperatureChartComponent }, // Ensure correct path for Temperature Chart component
   { path: 'heat-index-calculator', component: HeatIndexCalculatorComponent },
 ];
 
