@@ -8,10 +8,9 @@ describe('HeatIndexCalculatorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HeatIndexCalculatorComponent]
-    })
-    .compileComponents();
-    
+      declarations: [HeatIndexCalculatorComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(HeatIndexCalculatorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

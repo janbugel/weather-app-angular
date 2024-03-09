@@ -4,7 +4,7 @@ import { WeatherService } from '../weather.service';
 @Component({
   selector: 'app-temperature-chart',
   templateUrl: './temperature-chart.component.html',
-  styleUrls: ['./temperature-chart.component.sass']
+  styleUrls: ['./temperature-chart.component.sass'],
 })
 export class TemperatureChartComponent implements OnInit {
   public temperatureData: any[] = [];
@@ -19,7 +19,7 @@ export class TemperatureChartComponent implements OnInit {
   public yAxisLabel = 'Temperature (°C)';
   public timeline = true;
   public colorScheme = {
-    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
+    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'],
   };
 
   constructor(private weatherService: WeatherService) {}
@@ -29,18 +29,25 @@ export class TemperatureChartComponent implements OnInit {
   }
 
   fetchTemperatureData(): void {
-    this.weatherService.getWeatherForecast(51.5074, -0.1278).subscribe(data => {
-      this.temperatureData = [{
-        name: 'Temperature',
-        series: this.transformDataForChart(data.hourly.time, data.hourly.temperature_2m)
-      }];
-    });
+    this.weatherService
+      .getWeatherForecast(51.5074, -0.1278)
+      .subscribe((data) => {
+        this.temperatureData = [
+          {
+            name: 'Temperature',
+            series: this.transformDataForChart(
+              data.hourly.time,
+              data.hourly.temperature_2m
+            ),
+          },
+        ];
+      });
   }
 
   transformDataForChart(times: string[], temperatures: number[]): any[] {
     return times.map((time, index) => ({
       name: new Date(time).toLocaleString(),
-      value: temperatures[index]
+      value: temperatures[index],
     }));
   }
 }

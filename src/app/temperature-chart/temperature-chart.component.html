@@ -1,9 +1,10 @@
 <div *ngIf="temperatureData && temperatureData.length > 0">
   <h2>Temperature Chart</h2>
   <ngx-charts-line-chart
-      [view]="view"
-      [results]="temperatureData"
-      [xAxisLabel]="'Time'"
-      [yAxisLabel]="'Temperature (°C)'">
+    [view]="view"
+    [results]="temperatureData"
+    [xAxisLabel]="'Time'"
+    [yAxisLabel]="'Temperature (°C)'"
+  >
   </ngx-charts-line-chart>
 </div>

@@ -1,21 +1,48 @@
 <div class="heat-index-calculator-container">
-  <h2>Heat Index Calculator</h2>
-  <form>
-    <div class="form-group">
-      <label for="temperature">Temperature</label>
-      <input type="number" id="temperature" [(ngModel)]="temperature" name="temperature" required>
-      <select [(ngModel)]="temperatureUnit" name="temperatureUnit">
-        <option value="C">°C</option>
-        <option value="F">°F</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="humidity">Relative Humidity (%)</label>
-      <input type="number" id="humidity" [(ngModel)]="humidity" name="humidity" required>
-    </div>
-    <button type="button" (click)="calculateHeatIndex()">Calculate</button>
-  </form>
-  <div *ngIf="heatIndex !== null">
-    <h3>Heat Index: {{ heatIndex | number:'1.0-1'}} {{ temperatureUnit }}</h3>
-  </div>
+  <mat-card class="heat-index-card">
+    <mat-card-header>
+      <mat-card-title class="mat-headline"
+        >Heat Index Calculator</mat-card-title
+      >
+    </mat-card-header>
+    <mat-card-content>
+      <form (ngSubmit)="calculateHeatIndex()" class="form-style">
+        <mat-form-field appearance="fill">
+          <mat-label>Temperature</mat-label>
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="temperature"
+            name="temperature"
+            required
+          />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Temperature Unit</mat-label>
+          <mat-select [(ngModel)]="temperatureUnit" name="temperatureUnit">
+            <mat-option value="C">°C</mat-option>
+            <mat-option value="F">°F</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Relative Humidity (%)</mat-label>
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="humidity"
+            name="humidity"
+            required
+          />
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit">
+          Calculate
+        </button>
+      </form>
+    </mat-card-content>
+    <mat-card-actions *ngIf="heatIndex !== null">
+      <p class="heat-index-result">
+        Heat Index: {{ heatIndex | number : "1.0-1" }} {{ temperatureUnit }}
+      </p>
+    </mat-card-actions>
+  </mat-card>
 </div>

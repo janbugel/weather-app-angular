@@ -8,10 +8,9 @@ describe('TemperatureChartComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TemperatureChartComponent]
-    })
-    .compileComponents();
-    
+      declarations: [TemperatureChartComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(TemperatureChartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
