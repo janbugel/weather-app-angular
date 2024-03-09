@@ -1,5 +1,4 @@
-<div *ngIf="temperatureData && temperatureData.length > 0">
-  <h2>Temperature Chart</h2>
+<div *ngIf="temperatureData && temperatureData.length > 0" class="temperature-chart-container">
   <ngx-charts-line-chart
     [view]="view"
     [results]="temperatureData"

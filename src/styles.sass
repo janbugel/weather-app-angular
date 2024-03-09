@@ -1,3 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
-
-@import '@angular/material/prebuilt-themes/indigo-pink.css'
+.app-toolbar
+  display: flex
+  align-items: center
+  justify-content: space-between
+  .logo-container .sun-emoji
+    font-size: 24px
+    margin-right: 20px
+  .spacer
+    flex: 1
+  .tabs-container .menu-icon
+    margin-right: 16px
+    background: none
+    border: none
+    display: none
+  @media (max-width: 768px)
+    .desktop-tabs
+      display: none
+    .menu-icon
+      display: inline

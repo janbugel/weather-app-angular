@@ -1,24 +1,85 @@
 
 --- index.html ---
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>weather app</title>
-  <base href="/">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <!-- Add Roboto font -->
-  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
-  
-  <!-- Add icon library for any icons you may use -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>weather app</title>
+    <base href="/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Add Roboto font -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Add icon library for any icons you may use -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
 </html>
+
+
+
+--- openmeteo.ts ---
+// ## Install
+
+// npm install openmeteo
+
+// Usage
+
+import { fetchWeatherApi } from 'openmeteo';
+
+const params = {
+  latitude: 52.52,
+  longitude: 13.41,
+  hourly: 'temperature_2m',
+};
+const url = 'https://api.open-meteo.com/v1/forecast';
+const responses = await fetchWeatherApi(url, params);
+
+// Helper function to form time ranges
+const range = (start: number, stop: number, step: number) =>
+  Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
+
+// Process first location. Add a for-loop for multiple locations or weather models
+const response = responses[0];
+
+// Attributes for timezone and location
+const utcOffsetSeconds = response.utcOffsetSeconds();
+const timezone = response.timezone();
+const timezoneAbbreviation = response.timezoneAbbreviation();
+const latitude = response.latitude();
+const longitude = response.longitude();
+
+const hourly = response.hourly()!;
+
+// Note: The order of weather variables in the URL query and the indices below need to match!
+const weatherData = {
+  hourly: {
+    time: range(
+      Number(hourly.time()),
+      Number(hourly.timeEnd()),
+      hourly.interval()
+    ).map((t) => new Date((t + utcOffsetSeconds) * 1000)),
+    temperature2m: hourly.variables(0)!.valuesArray()!,
+  },
+};
+
+// `weatherData` now contains a simple structure with arrays for datetime and weather data
+for (let i = 0; i < weatherData.hourly.time.length; i++) {
+  console.log(
+    weatherData.hourly.time[i].toISOString(),
+    weatherData.hourly.temperature2m[i]
+  );
+}
 
 
 
@@ -27,23 +88,42 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule } from './app/app.module';
 
-
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+platformBrowserDynamic()
+  .bootstrapModule(AppModule)
+  .catch((err) => console.error(err));
 
 
 
 --- styles.sass ---
-/* You can add global styles to this file, and also import other style files */
+.app-toolbar
+  display: flex
+  align-items: center
+  justify-content: space-between
+  .logo-container .sun-emoji
+    font-size: 24px
+    margin-right: 20px
+  .spacer
+    flex: 1
+  .tabs-container .menu-icon
+    margin-right: 16px
+    background: none
+    border: none
+    display: none
+  @media (max-width: 768px)
+    .desktop-tabs
+      display: none
+    .menu-icon
+      display: inline
 
-@import '@angular/material/prebuilt-themes/indigo-pink.css'
 
 
 --- app/app.component.html ---
-<div class="app-container">
-  <h1>{{ title }}</h1>
-  <div class="tab-container">
-    <mat-tab-group>
+<div class="app-header">
+  <div class="tabs-container">
+    <button class="menu-icon" *ngIf="isMobile" (click)="toggleMenu()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-tab-group class="desktop-tabs" *ngIf="!isMobile">
       <mat-tab label="Weather Table">
         <app-weather-table></app-weather-table>
       </mat-tab>
@@ -54,31 +134,26 @@ platformBrowserDynamic().bootstrapModule(AppModule)
         <app-heat-index-calculator></app-heat-index-calculator>
       </mat-tab>
     </mat-tab-group>
+    <!-- Placeholder for mobile menu content when toggled -->
   </div>
 </div>
 <router-outlet></router-outlet>
 
 
-
 --- app/app-routing.module.ts ---
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { WeatherTableComponent } from './weather-table/weather-table.component';
 import { TemperatureChartComponent } from './temperature-chart/temperature-chart.component';
-import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index-calculator.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/weather-table', pathMatch: 'full' },
-  { path: 'weather-table', component: WeatherTableComponent },
-  { path: 'temperature-chart', component: TemperatureChartComponent }, // Ensure correct path for Temperature Chart component
-  { path: 'heat-index-calculator', component: HeatIndexCalculatorComponent },
+  { path: 'temperature-chart', component: TemperatureChartComponent }, // Make sure this path is correct
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
 
 
 
@@ -90,12 +165,8 @@ import { AppComponent } from './app.component';
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule
-      ],
-      declarations: [
-        AppComponent
-      ],
+      imports: [RouterTestingModule],
+      declarations: [AppComponent],
     }).compileComponents();
   });
 
@@ -115,7 +186,9 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, weather-app-angular');
+    expect(compiled.querySelector('h1')?.textContent).toContain(
+      'Hello, weather-app-angular'
+    );
   });
 });
 
@@ -126,7 +199,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatTabsModule } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -134,7 +206,20 @@ import { TabsComponent } from './tabs/tabs.component';
 import { WeatherTableComponent } from './weather-table/weather-table.component';
 import { TemperatureChartComponent } from './temperature-chart/temperature-chart.component';
 import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index-calculator.component';
-import { NgxChartsModule } from '@swimlane/ngx-charts'; // Add this import
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @NgModule({
   declarations: [
@@ -148,16 +233,26 @@ import { NgxChartsModule } from '@swimlane/ngx-charts'; // Add this import
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    HttpClientModule, 
-    MatTabsModule,
+    HttpClientModule,
     FormsModule,
-    NgxChartsModule // Add this module here for charts
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatGridListModule,
+    MatIconModule,
+    MatToolbarModule,
+    MatTabsModule,
+    NgxChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
-
+export class AppModule {}
 
 
 --- app/weather.service.ts ---
@@ -166,15 +261,30 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WeatherService {
   private baseUrl = 'https://api.open-meteo.com/v1';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
+  // Method for fetching forecast data
   getWeatherForecast(latitude: number, longitude: number): Observable<any> {
-    const url = `${this.baseUrl}/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m`;
+    const url = `${this.baseUrl}/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relative_humidity_2m,pressure_msl`;
+    return this.http.get(url);
+  }
+
+  // Separate method for fetching historical data with start and end dates
+  getWeatherHistoricalData(
+    latitude: number,
+    longitude: number,
+    startDate: Date,
+    endDate: Date
+  ): Observable<any> {
+    const startFormat = startDate.toISOString().split('T')[0];
+    const endFormat = endDate.toISOString().split('T')[0];
+
+    const url = `${this.baseUrl}/forecast?latitude=${latitude}&longitude=${longitude}&start=${startFormat}&end=${endFormat}&hourly=temperature_2m,relative_humidity_2m`;
     return this.http.get(url);
   }
 }
@@ -182,21 +292,26 @@ export class WeatherService {
 
 
 --- app/app.component.ts ---
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.sass']
+  styleUrls: ['./app.component.sass'],
 })
 export class AppComponent {
-  public title: string;
+  public isMobile: boolean = window.innerWidth < 768;
+  public menuOpen: boolean = false;
 
-  constructor() {
-    this.title = 'Weather App Angular';
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.isMobile = window.innerWidth < 768;
+  }
+
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
   }
 }
-
 
 
 --- app/app.component.sass ---
@@ -234,14 +349,8 @@ describe('WeatherService', () => {
 
 --- app/tabs/tabs.component.html ---
 <mat-tab-group>
-  <mat-tab label="Weather Table">
-    <app-weather-table></app-weather-table>
-  </mat-tab>
   <mat-tab label="Temperature Chart">
     <app-temperature-chart></app-temperature-chart>
-  </mat-tab>
-  <mat-tab label="Heat Index Calculator">
-    <app-heat-index-calculator></app-heat-index-calculator>
   </mat-tab>
 </mat-tab-group>
 
@@ -258,10 +367,9 @@ describe('TabsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TabsComponent]
-    })
-    .compileComponents();
-    
+      declarations: [TabsComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(TabsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -280,9 +388,10 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-tabs',
   templateUrl: './tabs.component.html',
-  styleUrls: ['./tabs.component.sass']
+  styleUrls: ['./tabs.component.sass'],
 })
 export class TabsComponent {
+  activeTab: any;
   constructor() {}
 }
 
@@ -303,10 +412,9 @@ describe('WeatherTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [WeatherTableComponent]
-    })
-    .compileComponents();
-    
+      declarations: [WeatherTableComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(WeatherTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -320,24 +428,20 @@ describe('WeatherTableComponent', () => {
 
 
 --- app/weather-table/weather-table.component.html ---
+<!-- Existing content, ensure there's a row for displaying datetime -->
 <div *ngIf="combinedData.length; else loading">
-  <h2>Weather Forecast and Historical Data for London</h2>
-  <table>
+  <table class="weather-table">
     <thead>
       <tr>
         <th>Date/Time</th>
-        <th>Weather State</th>
         <th>Temperature (°C)</th>
-        <th>Surface Pressure (hPa)</th>
         <th>Relative Humidity (%)</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let data of combinedData">
-        <td>{{ data.time }}</td>
-        <td>{{ data.weatherState }}</td>
+        <td>{{ data.datetime }}</td>
         <td>{{ data.temperature }}</td>
-        <td>{{ data.pressure }}</td>
         <td>{{ data.humidity }}</td>
       </tr>
     </tbody>
@@ -350,6 +454,26 @@ describe('WeatherTableComponent', () => {
 
 
 --- app/weather-table/weather-table.component.sass ---
+.weather-table
+  max-width: 100%
+  margin: auto
+  border-collapse: collapse
+  thead
+    background-color: #1976d2
+    color: white
+    th
+      padding: 10px
+      text-align: left
+  tbody tr:nth-child(even)
+    background-color: #f2f2f2
+  td, th
+    padding: 8px
+    border: 1px solid #ddd
+
+.weather-table td
+  text-align: center
+  text-align: center
+  font-size: 16px
 
 
 
@@ -360,52 +484,56 @@ import { WeatherService } from '../weather.service';
 @Component({
   selector: 'app-weather-table',
   templateUrl: './weather-table.component.html',
-  styleUrls: ['./weather-table.component.sass']
+  styleUrls: ['./weather-table.component.sass'],
 })
 export class WeatherTableComponent implements OnInit {
   combinedData: any[] = [];
 
-  constructor(private weatherService: WeatherService) { }
+  constructor(private weatherService: WeatherService) {}
 
   ngOnInit(): void {
     this.fetchWeatherData();
   }
 
   fetchWeatherData(): void {
-    this.weatherService.getWeatherForecast(52.52, 13.41).subscribe(
-      forecastData => {
-        const current = forecastData['current'];
-        const hourly = forecastData['hourly'];
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 7); // Fetching data for the last 7 days as an example
 
-        // Assuming 'time' is an array of timestamps in seconds
-        const times = hourly['time'].map((timestamp: number) => new Date(timestamp * 1000));
-
-        // Assuming other data is in arrays corresponding to each timestamp
-        const temperatures = hourly['temperature_2m'];
-        const humidity = hourly['relative_humidity_2m'];
-        const windSpeed = hourly['wind_speed_10m'];
-
-        // Assuming all arrays have the same length
-        for (let i = 0; i < times.length; i++) {
-          this.combinedData.push({
-            time: times[i],
-            temperature: temperatures[i],
-            humidity: humidity[i],
-            windSpeed: windSpeed[i]
-          });
+    this.weatherService
+      .getWeatherHistoricalData(51.5074, -0.1278, startDate, endDate)
+      .subscribe(
+        (data) => {
+          this.combinedData = data.hourly.time.map(
+            (time: string, index: number) => {
+              const dateTime = new Date(time);
+              const hour = dateTime.getHours();
+              const emoji = hour >= 6 && hour < 18 ? '☀️' : '🌙'; // Sun emoji from 6 AM to 6 PM, else Moon
+              return {
+                datetime: `${emoji} ${dateTime.toLocaleString()} `,
+                temperature: data.hourly.temperature_2m[index],
+                humidity: data.hourly.relative_humidity_2m[index],
+              };
+            }
+          );
+        },
+        (error) => {
+          console.error('Error fetching historical data:', error);
         }
-      },
-      error => {
-        console.error('Error fetching forecast data:', error);
-      }
-    );
+      );
   }
 }
 
 
 
 --- app/temperature-chart/temperature-chart.component.sass ---
+// SASS uses indentation to denote blocks, ensure proper indentation
+.temperature-chart-container
+  display: flex
+  justify-content: center
 
+  ngx-charts-line-chart
+    max-width: 100%
 
 
 --- app/temperature-chart/temperature-chart.component.ts ---
@@ -415,7 +543,7 @@ import { WeatherService } from '../weather.service';
 @Component({
   selector: 'app-temperature-chart',
   templateUrl: './temperature-chart.component.html',
-  styleUrls: ['./temperature-chart.component.sass']
+  styleUrls: ['./temperature-chart.component.sass'],
 })
 export class TemperatureChartComponent implements OnInit {
   public temperatureData: any[] = [];
@@ -430,7 +558,7 @@ export class TemperatureChartComponent implements OnInit {
   public yAxisLabel = 'Temperature (°C)';
   public timeline = true;
   public colorScheme = {
-    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
+    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'],
   };
 
   constructor(private weatherService: WeatherService) {}
@@ -440,35 +568,41 @@ export class TemperatureChartComponent implements OnInit {
   }
 
   fetchTemperatureData(): void {
-    // Implement fetching temperature data from the service
+    this.weatherService
+      .getWeatherForecast(51.5074, -0.1278)
+      .subscribe((data) => {
+        this.temperatureData = [
+          {
+            name: 'Temperature',
+            series: this.transformDataForChart(
+              data.hourly.time,
+              data.hourly.temperature_2m
+            ),
+          },
+        ];
+      });
   }
 
   transformDataForChart(times: string[], temperatures: number[]): any[] {
-    // Implement transformation of data for chart
-    return [];
+    return times.map((time, index) => ({
+      name: new Date(time).toLocaleString(),
+      value: temperatures[index],
+    }));
   }
 }
 
 
 
 --- app/temperature-chart/temperature-chart.component.html ---
-<div *ngIf="temperatureData && temperatureData.length > 0">
-  <h2>Temperature Chart</h2>
+<div *ngIf="temperatureData && temperatureData.length > 0" class="temperature-chart-container">
   <ngx-charts-line-chart
-      [view]="view"
-      [results]="temperatureData"
-      [gradient]="gradient"
-      [xAxis]="showXAxis"
-      [yAxis]="showYAxis"
-      [legend]="showLegend"
-      [showXAxisLabel]="showXAxisLabel"
-      [showYAxisLabel]="showYAxisLabel"
-      [xAxisLabel]="xAxisLabel"
-      [yAxisLabel]="yAxisLabel"
-      [timeline]="timeline">
+    [view]="view"
+    [results]="temperatureData"
+    [xAxisLabel]="'Time'"
+    [yAxisLabel]="'Temperature (°C)'"
+  >
   </ngx-charts-line-chart>
 </div>
-
 
 
 --- app/temperature-chart/temperature-chart.component.spec.ts ---
@@ -482,10 +616,9 @@ describe('TemperatureChartComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TemperatureChartComponent]
-    })
-    .compileComponents();
-    
+      declarations: [TemperatureChartComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(TemperatureChartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -501,18 +634,18 @@ describe('TemperatureChartComponent', () => {
 --- app/heat-index-calculator/heat-index-calculator.component.sass ---
 .heat-index-calculator-container
   display: flex
+  justify-content: center
+  margin: 20px
+
+.form-style
+  display: flex
   flex-direction: column
-  align-items: center
+  gap: 20px
 
-.form-group
-  margin-bottom: 15px
-
-label
-  display: block
-
-input, select
-  margin-top: 5px
-
+.heat-index-result
+  font-size: 20px
+  text-align: center
+  font-weight: bold
 
 
 --- app/heat-index-calculator/heat-index-calculator.component.ts ---
@@ -521,7 +654,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-heat-index-calculator',
   templateUrl: './heat-index-calculator.component.html',
-  styleUrls: ['./heat-index-calculator.component.sass']
+  styleUrls: ['./heat-index-calculator.component.sass'],
 })
 export class HeatIndexCalculatorComponent {
   temperature: number | null = null;
@@ -532,27 +665,49 @@ export class HeatIndexCalculatorComponent {
   calculateHeatIndex(): void {
     if (this.temperature !== null && this.humidity !== null) {
       if (this.temperatureUnit === 'F') {
-        this.heatIndex = this.calculateHeatIndexFahrenheit(this.temperature, this.humidity);
+        this.heatIndex = this.calculateHeatIndexFahrenheit(
+          this.temperature,
+          this.humidity
+        );
       } else {
         // Convert Celsius to Fahrenheit for calculation
-        const tempInFahrenheit = (this.temperature * 9/5) + 32;
-        const heatIndexFahrenheit = this.calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity);
-        // Convert back to Celsius if necessary
-        this.heatIndex = (heatIndexFahrenheit - 32) * 5/9;
+        const tempInFahrenheit = this.convertCelsiusToFahrenheit(
+          this.temperature
+        );
+        const heatIndexFahrenheit = this.calculateHeatIndexFahrenheit(
+          tempInFahrenheit,
+          this.humidity
+        );
+        // Convert back to Celsius for the result
+        this.heatIndex = this.convertFahrenheitToCelsius(heatIndexFahrenheit);
       }
     }
   }
 
   private calculateHeatIndexFahrenheit(temp: number, humidity: number): number {
-    // Heat index calculation formula
-    // This is a simplified version and may need to be adjusted according to the specific formula you wish to use
+    // Enhanced Heat Index formula using the provided files and logic
     if (temp < 80) {
       return temp;
     }
-    return -42.379 + 2.04901523 * temp + 10.14333127 * humidity
-           - 0.22475541 * temp * humidity - 0.00683783 * temp * temp
-           - 0.05481717 * humidity * humidity + 0.00122874 * temp * temp * humidity
-           + 0.00085282 * temp * humidity * humidity - 0.00000199 * temp * temp * humidity * humidity;
+    let heatIndex =
+      -42.379 +
+      2.04901523 * temp +
+      10.14333127 * humidity -
+      0.22475541 * temp * humidity -
+      0.00683783 * temp ** 2 -
+      0.05481717 * humidity ** 2 +
+      0.00122874 * temp ** 2 * humidity +
+      0.00085282 * temp * humidity ** 2 -
+      0.00000199 * temp ** 2 * humidity ** 2;
+    return Math.round(heatIndex * 10) / 10; // Rounded to one decimal place
+  }
+
+  private convertCelsiusToFahrenheit(celsius: number): number {
+    return (celsius * 9) / 5 + 32;
+  }
+
+  private convertFahrenheitToCelsius(fahrenheit: number): number {
+    return ((fahrenheit - 32) * 5) / 9;
   }
 }
 
@@ -560,27 +715,51 @@ export class HeatIndexCalculatorComponent {
 
 --- app/heat-index-calculator/heat-index-calculator.component.html ---
 <div class="heat-index-calculator-container">
-    <h2>Heat Index Calculator</h2>
-    <form>
-      <div class="form-group">
-        <label for="temperature">Temperature</label>
-        <input type="number" id="temperature" [(ngModel)]="temperature" name="temperature" required>
-        <select [(ngModel)]="temperatureUnit" name="temperatureUnit">
-          <option value="C">°C</option>
-          <option value="F">°F</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="humidity">Relative Humidity (%)</label>
-        <input type="number" id="humidity" [(ngModel)]="humidity" name="humidity" required>
-      </div>
-      <button type="button" (click)="calculateHeatIndex()">Calculate</button>
-    </form>
-    <div *ngIf="heatIndex !== null">
-      <h3>Heat Index: {{ heatIndex }} {{ temperatureUnit }}</h3>
-    </div>
-  </div>
-  
+  <mat-card class="heat-index-card">
+    <mat-card-header>
+    </mat-card-header>
+    <mat-card-content>
+      <form (ngSubmit)="calculateHeatIndex()" class="form-style">
+        <mat-form-field appearance="fill">
+          <mat-label>Temperature</mat-label>
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="temperature"
+            name="temperature"
+            required
+          />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Temperature Unit</mat-label>
+          <mat-select [(ngModel)]="temperatureUnit" name="temperatureUnit">
+            <mat-option value="C">°C</mat-option>
+            <mat-option value="F">°F</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Relative Humidity (%)</mat-label>
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="humidity"
+            name="humidity"
+            required
+          />
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit">
+          Calculate
+        </button>
+      </form>
+    </mat-card-content>
+    <mat-card-actions *ngIf="heatIndex !== null">
+      <p class="heat-index-result">
+        Heat Index: {{ heatIndex | number : "1.0-1" }} {{ temperatureUnit }}
+      </p>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
 
 
 --- app/heat-index-calculator/heat-index-calculator.component.spec.ts ---
@@ -594,10 +773,9 @@ describe('HeatIndexCalculatorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HeatIndexCalculatorComponent]
-    })
-    .compileComponents();
-    
+      declarations: [HeatIndexCalculatorComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(HeatIndexCalculatorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

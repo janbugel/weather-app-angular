@@ -9,7 +9,7 @@ import { TabsComponent } from './tabs/tabs.component';
 import { WeatherTableComponent } from './weather-table/weather-table.component';
 import { TemperatureChartComponent } from './temperature-chart/temperature-chart.component';
 import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index-calculator.component';
-import { NgxChartsModule } from '@swimlane/ngx-charts'; // Add this import
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
@@ -21,6 +21,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @NgModule({
   declarations: [
@@ -28,14 +30,13 @@ import { MatGridListModule } from '@angular/material/grid-list';
     TabsComponent,
     WeatherTableComponent,
     TemperatureChartComponent,
-    HeatIndexCalculatorComponent,
+    HeatIndexCalculatorComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    MatTabsModule,
     FormsModule,
     MatTableModule,
     MatPaginatorModule,
@@ -46,9 +47,12 @@ import { MatGridListModule } from '@angular/material/grid-list';
     MatButtonModule,
     MatCardModule,
     MatGridListModule,
-    NgxChartsModule, // Add this module here for charts
+    MatIconModule,
+    MatToolbarModule,
+    MatTabsModule,
+    NgxChartsModule
   ],
   providers: [],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]
 })
 export class AppModule {}

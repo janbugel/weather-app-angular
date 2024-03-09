@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -6,9 +6,15 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.sass'],
 })
 export class AppComponent {
-  public title: string;
+  public isMobile: boolean = window.innerWidth < 768;
+  public menuOpen: boolean = false;
 
-  constructor() {
-    this.title = 'Weather App Angular';
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.isMobile = window.innerWidth < 768;
+  }
+
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
   }
 }
