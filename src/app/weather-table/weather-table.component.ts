@@ -8,40 +8,41 @@ import { WeatherService } from '../weather.service';
 })
 export class WeatherTableComponent implements OnInit {
   combinedData: any[] = [];
+  londonLatitude = 51.5074;
+  londonLongitude = -0.1278;
 
   constructor(private weatherService: WeatherService) { }
 
   ngOnInit(): void {
-    this.fetchWeatherData();
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 7); // Get data starting from 7 days ago
+    this.fetchData(this.londonLatitude, this.londonLongitude, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
   }
 
-  fetchWeatherData(): void {
-    this.weatherService.getWeatherForecast(52.52, 13.41).subscribe(
-      forecastData => {
-        const current = forecastData['current'];
-        const hourly = forecastData['hourly'];
+  fetchData(latitude: number, longitude: number, startDate: string, endDate: string): void {
+    this.weatherService.getWeatherForecast(latitude, longitude).subscribe(forecastData => {
+      // Transform and add forecast data to combinedData
+      this.transformAndAddData(forecastData, 'forecast');
 
-        // Assuming 'time' is an array of timestamps in seconds
-        const times = hourly['time'].map((timestamp: number) => new Date(timestamp * 1000));
+      this.weatherService.getHistoricalWeather(latitude, longitude, startDate, endDate).subscribe(historicalData => {
+        // Transform and add historical data to combinedData
+        this.transformAndAddData(historicalData, 'historical');
+      });
+    });
+  }
 
-        // Assuming other data is in arrays corresponding to each timestamp
-        const temperatures = hourly['temperature_2m'];
-        const humidity = hourly['relative_humidity_2m'];
-        const windSpeed = hourly['wind_speed_10m'];
-
-        // Assuming all arrays have the same length
-        for (let i = 0; i < times.length; i++) {
-          this.combinedData.push({
-            time: times[i],
-            temperature: temperatures[i],
-            humidity: humidity[i],
-            windSpeed: windSpeed[i]
-          });
-        }
-      },
-      error => {
-        console.error('Error fetching forecast data:', error);
-      }
-    );
+  private transformAndAddData(data: any, dataType: 'forecast' | 'historical'): void {
+    // Example transformation, needs fine-tuning based on the exact structure of your response data
+    const hourlyData = data.hourly;
+    for (let i = 0; i < hourlyData.time.length; i++) {
+      this.combinedData.push({
+        time: new Date(hourlyData.time[i] * 1000),
+        temperature: hourlyData.temperature_2m[i],
+        humidity: hourlyData.relative_humidity_2m[i],
+        // Add additional data transformation as needed
+      });
+    }
+    // You might need to sort combinedData based on time if ordering is important
   }
 }

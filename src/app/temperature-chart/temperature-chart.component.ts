@@ -21,19 +21,38 @@ export class TemperatureChartComponent implements OnInit {
   public colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
+  londonLatitude = 51.5074;
+  londonLongitude = -0.1278;
 
   constructor(private weatherService: WeatherService) {}
 
   ngOnInit(): void {
-    this.fetchTemperatureData();
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 7); // Get data starting from 7 days ago
+    this.fetchData(this.londonLatitude, this.londonLongitude, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
   }
 
-  fetchTemperatureData(): void {
-    // Implement fetching temperature data from the service
+  fetchData(latitude: number, longitude: number, startDate: string, endDate: string): void {
+    this.weatherService.getWeatherForecast(latitude, longitude).subscribe(forecastData => {
+      this.transformAndAddData(forecastData, 'forecast');
+      this.weatherService.getHistoricalWeather(latitude, longitude, startDate, endDate).subscribe(historicalData => {
+        this.transformAndAddData(historicalData, 'historical');
+      });
+    });
   }
 
-  transformDataForChart(times: string[], temperatures: number[]): any[] {
-    // Implement transformation of data for chart
-    return [];
+  private transformAndAddData(data: any, dataType: 'forecast' | 'historical'): void {
+    // Assumed transformation, actual implementation depends on your API structure
+    const series = data.hourly.temperature_2m.map((temp: number, index: number) => {
+      return {
+        name: new Date(data.hourly.time[index] * 1000).toLocaleString(),
+        value: temp
+      }
+    });
+    this.temperatureData.push({
+      name: dataType === 'forecast' ? 'Forecast' : 'Historical',
+      series
+    });
   }
 }

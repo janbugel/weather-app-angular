@@ -11,6 +11,9 @@ import { WeatherTableComponent } from './weather-table/weather-table.component';
 import { TemperatureChartComponent } from './temperature-chart/temperature-chart.component';
 import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index-calculator.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts'; // Add this import
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 
 @NgModule({
   declarations: [
@@ -27,6 +30,9 @@ import { NgxChartsModule } from '@swimlane/ngx-charts'; // Add this import
     HttpClientModule, 
     MatTabsModule,
     FormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
     NgxChartsModule // Add this module here for charts
   ],
   providers: [],
