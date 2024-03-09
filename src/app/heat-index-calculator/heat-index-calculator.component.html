@@ -1,22 +1,21 @@
 <div class="heat-index-calculator-container">
-    <h2>Heat Index Calculator</h2>
-    <form>
-      <div class="form-group">
-        <label for="temperature">Temperature</label>
-        <input type="number" id="temperature" [(ngModel)]="temperature" name="temperature" required>
-        <select [(ngModel)]="temperatureUnit" name="temperatureUnit">
-          <option value="C">°C</option>
-          <option value="F">°F</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="humidity">Relative Humidity (%)</label>
-        <input type="number" id="humidity" [(ngModel)]="humidity" name="humidity" required>
-      </div>
-      <button type="button" (click)="calculateHeatIndex()">Calculate</button>
-    </form>
-    <div *ngIf="heatIndex !== null">
-      <h3>Heat Index: {{ heatIndex }} {{ temperatureUnit }}</h3>
+  <h2>Heat Index Calculator</h2>
+  <form>
+    <div class="form-group">
+      <label for="temperature">Temperature</label>
+      <input type="number" id="temperature" [(ngModel)]="temperature" name="temperature" required>
+      <select [(ngModel)]="temperatureUnit" name="temperatureUnit">
+        <option value="C">°C</option>
+        <option value="F">°F</option>
+      </select>
     </div>
+    <div class="form-group">
+      <label for="humidity">Relative Humidity (%)</label>
+      <input type="number" id="humidity" [(ngModel)]="humidity" name="humidity" required>
+    </div>
+    <button type="button" (click)="calculateHeatIndex()">Calculate</button>
+  </form>
+  <div *ngIf="heatIndex !== null">
+    <h3>Heat Index: {{ heatIndex | number:'1.0-1'}} {{ temperatureUnit }}</h3>
   </div>
-  
+</div>

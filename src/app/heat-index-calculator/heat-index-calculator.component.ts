@@ -17,23 +17,30 @@ export class HeatIndexCalculatorComponent {
         this.heatIndex = this.calculateHeatIndexFahrenheit(this.temperature, this.humidity);
       } else {
         // Convert Celsius to Fahrenheit for calculation
-        const tempInFahrenheit = (this.temperature * 9/5) + 32;
+        const tempInFahrenheit = this.convertCelsiusToFahrenheit(this.temperature);
         const heatIndexFahrenheit = this.calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity);
-        // Convert back to Celsius if necessary
-        this.heatIndex = (heatIndexFahrenheit - 32) * 5/9;
+        // Convert back to Celsius for the result
+        this.heatIndex = this.convertFahrenheitToCelsius(heatIndexFahrenheit);
       }
     }
   }
 
   private calculateHeatIndexFahrenheit(temp: number, humidity: number): number {
-    // Heat index calculation formula
-    // This is a simplified version and may need to be adjusted according to the specific formula you wish to use
-    if (temp < 80) {
-      return temp;
-    }
-    return -42.379 + 2.04901523 * temp + 10.14333127 * humidity
-           - 0.22475541 * temp * humidity - 0.00683783 * temp * temp
-           - 0.05481717 * humidity * humidity + 0.00122874 * temp * temp * humidity
-           + 0.00085282 * temp * humidity * humidity - 0.00000199 * temp * temp * humidity * humidity;
+    // Enhanced Heat Index formula using the provided files and logic
+    if (temp < 80) { 
+      return temp; 
+    } 
+    let heatIndex = -42.379 + 2.04901523 * temp + 10.14333127 * humidity - 0.22475541 * temp * humidity
+           - 0.00683783 * temp ** 2 - 0.05481717 * humidity ** 2 + 0.00122874 * temp ** 2 * humidity
+           + 0.00085282 * temp * humidity ** 2 - 0.00000199 * temp ** 2 * humidity ** 2;
+    return Math.round(heatIndex * 10) / 10; // Rounded to one decimal place
+  }
+  
+  private convertCelsiusToFahrenheit(celsius: number): number {
+    return (celsius * 9/5) + 32;
+  }
+  
+  private convertFahrenheitToCelsius(fahrenheit: number): number {
+    return (fahrenheit - 32) * 5/9;
   }
 }
