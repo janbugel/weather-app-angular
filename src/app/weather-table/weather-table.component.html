@@ -1,21 +1,17 @@
+<!-- Existing content, ensure there's a row for displaying datetime -->
 <div *ngIf="combinedData.length; else loading">
-  <h2>Weather Forecast and Historical Data for London</h2>
-  <table>
+  <table class="weather-table">
     <thead>
       <tr>
         <th>Date/Time</th>
-        <th>Weather State</th>
         <th>Temperature (°C)</th>
-        <th>Surface Pressure (hPa)</th>
         <th>Relative Humidity (%)</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let data of combinedData">
-        <td>{{ data.time }}</td>
-        <td>{{ data.weatherState }}</td>
+        <td>{{ data.datetime }}</td>
         <td>{{ data.temperature }}</td>
-        <td>{{ data.pressure }}</td>
         <td>{{ data.humidity }}</td>
       </tr>
     </tbody>

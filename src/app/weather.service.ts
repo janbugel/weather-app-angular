@@ -6,18 +6,22 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class WeatherService {
-  private baseForecastUrl = 'https://api.open-meteo.com/v1/forecast';
-  private baseHistoricalUrl = 'https://api.open-meteo.com/v1/history';
+  private baseUrl = 'https://api.open-meteo.com/v1';
 
   constructor(private http: HttpClient) { }
 
+  // Method for fetching forecast data
   getWeatherForecast(latitude: number, longitude: number): Observable<any> {
-    const params = `latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,weathercode,surface_pressure`;
-    return this.http.get(`${this.baseForecastUrl}?${params}`);
+    const url = `${this.baseUrl}/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relative_humidity_2m,pressure_msl`;
+    return this.http.get(url);
   }
+  
+  // Separate method for fetching historical data with start and end dates
+  getWeatherHistoricalData(latitude: number, longitude: number, startDate: Date, endDate: Date): Observable<any> {
+    const startFormat = startDate.toISOString().split('T')[0];
+    const endFormat = endDate.toISOString().split('T')[0];
 
-  getHistoricalWeather(latitude: number, longitude: number, startDate: string, endDate: string): Observable<any> {
-    const params = `latitude=${latitude}&longitude=${longitude}&start=${startDate}&end=${endDate}&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,weathercode,surface_pressure`;
-    return this.http.get(`${this.baseHistoricalUrl}?${params}`);
+    const url = `${this.baseUrl}/forecast?latitude=${latitude}&longitude=${longitude}&start=${startFormat}&end=${endFormat}&hourly=temperature_2m,relative_humidity_2m`;
+    return this.http.get(url);
   }
 }

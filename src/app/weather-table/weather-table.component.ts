@@ -8,41 +8,34 @@ import { WeatherService } from '../weather.service';
 })
 export class WeatherTableComponent implements OnInit {
   combinedData: any[] = [];
-  londonLatitude = 51.5074;
-  londonLongitude = -0.1278;
 
   constructor(private weatherService: WeatherService) { }
 
   ngOnInit(): void {
+    this.fetchWeatherData();
+  }
+
+  fetchWeatherData(): void {
     const endDate = new Date();
     const startDate = new Date();
-    startDate.setDate(endDate.getDate() - 7); // Get data starting from 7 days ago
-    this.fetchData(this.londonLatitude, this.londonLongitude, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
-  }
-
-  fetchData(latitude: number, longitude: number, startDate: string, endDate: string): void {
-    this.weatherService.getWeatherForecast(latitude, longitude).subscribe(forecastData => {
-      // Transform and add forecast data to combinedData
-      this.transformAndAddData(forecastData, 'forecast');
-
-      this.weatherService.getHistoricalWeather(latitude, longitude, startDate, endDate).subscribe(historicalData => {
-        // Transform and add historical data to combinedData
-        this.transformAndAddData(historicalData, 'historical');
-      });
-    });
-  }
-
-  private transformAndAddData(data: any, dataType: 'forecast' | 'historical'): void {
-    // Example transformation, needs fine-tuning based on the exact structure of your response data
-    const hourlyData = data.hourly;
-    for (let i = 0; i < hourlyData.time.length; i++) {
-      this.combinedData.push({
-        time: new Date(hourlyData.time[i] * 1000),
-        temperature: hourlyData.temperature_2m[i],
-        humidity: hourlyData.relative_humidity_2m[i],
-        // Add additional data transformation as needed
-      });
-    }
-    // You might need to sort combinedData based on time if ordering is important
+    startDate.setDate(endDate.getDate() - 7); // Fetching data for the last 7 days as an example
+    
+    this.weatherService.getWeatherHistoricalData(51.5074, -0.1278, startDate, endDate).subscribe(
+      data => {
+        this.combinedData = data.hourly.time.map((time: string, index: number) => {
+          const dateTime = new Date(time);
+          const hour = dateTime.getHours();
+          const emoji = hour >= 6 && hour < 18 ? '☀️' : '🌙';  // Sun emoji from 6 AM to 6 PM, else Moon
+          return {
+            datetime: `${emoji} ${dateTime.toLocaleString()} `,
+            temperature: data.hourly.temperature_2m[index],
+            humidity: data.hourly.relative_humidity_2m[index]
+          };
+        });
+      },
+      error => {
+        console.error('Error fetching historical data:', error);
+      }
+    );
   }
 }
