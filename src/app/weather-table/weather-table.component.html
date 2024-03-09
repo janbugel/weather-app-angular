@@ -1,25 +1,26 @@
-<div *ngIf="weatherData; else loading">
-    <h2>Weather Forecast for London</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Date/Time</th>
-          <th>Temperature (°C)</th>
-          <th>Surface Pressure (hPa)</th>
-          <th>Relative Humidity (%)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let data of weatherData.hourly.times; let i = index">
-          <td>{{ weatherData.hourly.times[i] }}</td>
-          <td>{{ weatherData.hourly.temperature_2m[i] }}</td>
-          <td>{{ weatherData.hourly.pressure_surface_level[i] }}</td>
-          <td>{{ weatherData.hourly.relative_humidity[i] }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <ng-template #loading>
-    <p>Loading weather data...</p>
-  </ng-template>
-  
+<div *ngIf="combinedData.length; else loading">
+  <h2>Weather Forecast and Historical Data for London</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Date/Time</th>
+        <th>Weather State</th>
+        <th>Temperature (°C)</th>
+        <th>Surface Pressure (hPa)</th>
+        <th>Relative Humidity (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of combinedData">
+        <td>{{ data.time }}</td>
+        <td>{{ data.weatherState }}</td>
+        <td>{{ data.temperature }}</td>
+        <td>{{ data.pressure }}</td>
+        <td>{{ data.humidity }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<ng-template #loading>
+  <p>Loading weather data...</p>
+</ng-template>

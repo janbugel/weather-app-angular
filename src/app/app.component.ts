@@ -6,5 +6,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.sass']
 })
 export class AppComponent {
-  title = 'Weather App Angular';
+  public title: string;
+
+  constructor() {
+    this.title = 'Weather App Angular';
+  }
 }

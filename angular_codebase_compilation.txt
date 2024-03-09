@@ -1,17 +1,59 @@
 ---
-File: app.component.html
+File: index.html
 ---
-<!-- This is the root container of your application -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>weather app</title>
+  <base href="/">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Add Roboto font -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
+  
+  <!-- Add icon library for any icons you may use -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>
+
+
+---
+File: main.ts
+---
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
+import { AppModule } from './app/app.module';
+
+
+platformBrowserDynamic().bootstrapModule(AppModule)
+  .catch(err => console.error(err));
+
+
+---
+File: styles.sass
+---
+/* You can add global styles to this file, and also import other style files */
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css'
+
+---
+File: app/app.component.html
+---
 <div class="app-container">
-  <!-- The selector for the TabsComponent, which will hold all your tabs -->
+  <h1>{{ title }}</h1>
+  <app-weather-table></app-weather-table> <!-- Add this line to include the WeatherTableComponent -->
   <app-tabs></app-tabs>
 </div>
-
-<router-outlet />
+<router-outlet></router-outlet>
 
 
 ---
-File: app-routing.module.ts
+File: app/app-routing.module.ts
 ---
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
@@ -34,7 +76,7 @@ export class AppRoutingModule { }
 
 
 ---
-File: app.component.spec.ts
+File: app/app.component.spec.ts
 ---
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -74,21 +116,21 @@ describe('AppComponent', () => {
 
 
 ---
-File: app.module.ts
+File: app/app.module.ts
 ---
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTabsModule } from '@angular/material/tabs';
-import { FormsModule } from '@angular/forms'; // Import FormsModule here
-
+import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { TabsComponent } from './tabs/tabs.component';
 import { WeatherTableComponent } from './weather-table/weather-table.component';
 import { TemperatureChartComponent } from './temperature-chart/temperature-chart.component';
 import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index-calculator.component';
+import { NgxChartsModule } from '@swimlane/ngx-charts'; // Add this import
 
 @NgModule({
   declarations: [
@@ -104,7 +146,8 @@ import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index
     BrowserAnimationsModule,
     HttpClientModule, 
     MatTabsModule,
-    FormsModule // Add FormsModule here
+    FormsModule,
+    NgxChartsModule // Add this module here for charts
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -113,7 +156,7 @@ export class AppModule { }
 
 
 ---
-File: weather.service.ts
+File: app/weather.service.ts
 ---
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -128,13 +171,11 @@ export class WeatherService {
   constructor(private http: HttpClient) { }
 
   getWeatherForecast(): Observable<any> {
-    // This will need to be updated with the specific endpoint and query parameters
     const url = `${this.baseUrl}/v1/forecast?latitude=51.5074&longitude=-0.1278&hourly=temperature_2m,relative_humidity,pressure_surface_level`;
     return this.http.get(url);
   }
 
   getWeatherHistory(startDate: string, endDate: string): Observable<any> {
-    // This will also need the correct endpoint and parameters
     const url = `${this.baseUrl}/v1/history?latitude=51.5074&longitude=-0.1278&start=${startDate}&end=${endDate}&hourly=temperature_2m,relative_humidity,pressure_surface_level`;
     return this.http.get(url);
   }
@@ -142,22 +183,22 @@ export class WeatherService {
 
 
 ---
-File: app.component.ts
+File: app/app.component.ts
 ---
 import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrl: './app.component.sass'
+  styleUrls: ['./app.component.sass']
 })
 export class AppComponent {
-  title = 'weather-app-angular';
+  title = 'Weather App Angular';
 }
 
 
 ---
-File: app.component.sass
+File: app/app.component.sass
 ---
 .app-container
   display: flex
@@ -171,7 +212,7 @@ h1
 
 
 ---
-File: weather.service.spec.ts
+File: app/weather.service.spec.ts
 ---
 import { TestBed } from '@angular/core/testing';
 
@@ -192,7 +233,7 @@ describe('WeatherService', () => {
 
 
 ---
-File: tabs/tabs.component.html
+File: app/tabs/tabs.component.html
 ---
 <mat-tab-group>
   <mat-tab label="Weather Table">
@@ -208,7 +249,7 @@ File: tabs/tabs.component.html
 
 
 ---
-File: tabs/tabs.component.spec.ts
+File: app/tabs/tabs.component.spec.ts
 ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -236,7 +277,7 @@ describe('TabsComponent', () => {
 
 
 ---
-File: tabs/tabs.component.ts
+File: app/tabs/tabs.component.ts
 ---
 import { Component } from '@angular/core';
 
@@ -251,12 +292,12 @@ export class TabsComponent {
 
 
 ---
-File: tabs/tabs.component.sass
+File: app/tabs/tabs.component.sass
 ---
 
 
 ---
-File: weather-table/weather-table.component.spec.ts
+File: app/weather-table/weather-table.component.spec.ts
 ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -284,41 +325,43 @@ describe('WeatherTableComponent', () => {
 
 
 ---
-File: weather-table/weather-table.component.html
+File: app/weather-table/weather-table.component.html
 ---
-<div *ngIf="weatherData; else loading">
-    <h2>Weather Forecast for London</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Date/Time</th>
-          <th>Temperature (°C)</th>
-          <th>Surface Pressure (hPa)</th>
-          <th>Relative Humidity (%)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let data of weatherData.hourly.times; let i = index">
-          <td>{{ weatherData.hourly.times[i] }}</td>
-          <td>{{ weatherData.hourly.temperature_2m[i] }}</td>
-          <td>{{ weatherData.hourly.pressure_surface_level[i] }}</td>
-          <td>{{ weatherData.hourly.relative_humidity[i] }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <ng-template #loading>
-    <p>Loading weather data...</p>
-  </ng-template>
-  
-
----
-File: weather-table/weather-table.component.sass
----
+<div *ngIf="combinedData.length; else loading">
+  <h2>Weather Forecast and Historical Data for London</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Date/Time</th>
+        <th>Weather State</th>
+        <th>Temperature (°C)</th>
+        <th>Surface Pressure (hPa)</th>
+        <th>Relative Humidity (%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of combinedData">
+        <td>{{ data.time }}</td>
+        <td>{{ data.weatherState }}</td>
+        <td>{{ data.temperature }}</td>
+        <td>{{ data.pressure }}</td>
+        <td>{{ data.humidity }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<ng-template #loading>
+  <p>Loading weather data...</p>
+</ng-template>
 
 
 ---
-File: weather-table/weather-table.component.ts
+File: app/weather-table/weather-table.component.sass
+---
+
+
+---
+File: app/weather-table/weather-table.component.ts
 ---
 import { Component, OnInit } from '@angular/core';
 import { WeatherService } from '../weather.service';
@@ -329,72 +372,133 @@ import { WeatherService } from '../weather.service';
   styleUrls: ['./weather-table.component.sass']
 })
 export class WeatherTableComponent implements OnInit {
-  weatherData: any;
+  combinedData: any[] = [];
 
   constructor(private weatherService: WeatherService) { }
 
   ngOnInit(): void {
+    this.fetchWeatherData();
+  }
+
+  fetchWeatherData(): void {
     this.weatherService.getWeatherForecast().subscribe(
-      data => {
-        this.weatherData = data;
-        console.log(data); // For debugging, to see if data is being fetched
+      forecastData => {
+        const forecast = forecastData['hourly'];
+        this.weatherService.getWeatherHistory('2024-03-02', '2024-03-09').subscribe(
+          historyData => {
+            const history = historyData['hourly'];
+            this.combineData(forecast, history);
+          },
+          error => {
+            console.error('Error fetching historical data:', error);
+          }
+        );
       },
       error => {
-        console.error('Error fetching weather data:', error);
+        console.error('Error fetching forecast data:', error);
       }
     );
+  }
+
+  combineData(forecast: any[], history: any[]): void {
+    const combined = [...forecast, ...history];
+    this.combinedData = combined.map(data => ({
+      time: new Date(data.timestamp * 1000).toISOString(),
+      temperature: data.temperature_2m,
+      pressure: data.pressure_surface_level,
+      humidity: data.relative_humidity,
+      weatherState: data.weathercode // Assuming weather code is provided
+    }));
   }
 }
 
 
 ---
-File: temperature-chart/temperature-chart.component.sass
+File: app/temperature-chart/temperature-chart.component.sass
 ---
 
 
 ---
-File: temperature-chart/temperature-chart.component.ts
+File: app/temperature-chart/temperature-chart.component.ts
 ---
 import { Component, OnInit } from '@angular/core';
 import { WeatherService } from '../weather.service';
+// Ensure correct import for ScaleType if needed
+import { ScaleType } from '@swimlane/ngx-charts';
 
 @Component({
   selector: 'app-temperature-chart',
   templateUrl: './temperature-chart.component.html',
-  styleUrls: ['./temperature-chart.component.sass'] // If using SCSS, or change to .css if you're using CSS
+  styleUrls: ['./temperature-chart.component.sass']
 })
 export class TemperatureChartComponent implements OnInit {
-  public temperatureData: any[] = [];
-  public timeData: any[] = [];
+  temperatureData: any[] = [];
+  view: [number, number] = [700, 300]; // Width and height of the chart
+
+  // Options for the chart
+  showXAxis = true;
+  showYAxis = true;
+  gradient = false;
+  showLegend = false;
+  showXAxisLabel = true;
+  xAxisLabel = 'Time';
+  showYAxisLabel = true;
+  yAxisLabel = 'Temperature (°C)';
+  timeline = true;
+
+  // Correcting the colorScheme assignment
+  colorScheme = {
+    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
+  };
+
+  // Correct ScaleType if required
+  scaleType = ScaleType.Ordinal; // This line is optional, only add if needed by your version of NGX-Charts
 
   constructor(private weatherService: WeatherService) { }
 
   ngOnInit(): void {
     this.weatherService.getWeatherForecast().subscribe(data => {
-      this.temperatureData = data.hourly.temperature_2m;
-      this.timeData = data.hourly.time;
+      this.temperatureData = this.transformDataForChart(data.hourly.time, data.hourly.temperature_2m);
     }, error => {
       console.error('There was an error fetching the temperature data', error);
     });
+  }
+
+  transformDataForChart(times: string[], temperatures: number[]): any[] {
+    return [{
+      name: 'Temperature',
+      series: times.map((time, index) => ({
+        name: new Date(time).toLocaleString(),
+        value: temperatures[index]
+      }))
+    }];
   }
 }
 
 
 ---
-File: temperature-chart/temperature-chart.component.html
+File: app/temperature-chart/temperature-chart.component.html
 ---
-<div *ngIf="temperatureData.length">
-    <h2>Temperature Chart</h2>
-    <ul>
-      <li *ngFor="let temp of temperatureData; let i = index">
-        Time: {{ timeData[i] }}, Temperature: {{ temp }}°C
-      </li>
-    </ul>
-  </div>
-  
+<div *ngIf="temperatureData && temperatureData.length > 0">
+  <h2>Temperature Chart</h2>
+  <ngx-charts-line-chart
+      [view]="view"
+      [results]="temperatureData"
+      [gradient]="gradient"
+      [xAxis]="showXAxis"
+      [yAxis]="showYAxis"
+      [legend]="showLegend"
+      [showXAxisLabel]="showXAxisLabel"
+      [showYAxisLabel]="showYAxisLabel"
+      [xAxisLabel]="xAxisLabel"
+      [yAxisLabel]="yAxisLabel"
+      [timeline]="timeline">
+  </ngx-charts-line-chart>
+</div>
+
 
 ---
-File: temperature-chart/temperature-chart.component.spec.ts
+File: app/temperature-chart/temperature-chart.component.spec.ts
 ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -422,7 +526,7 @@ describe('TemperatureChartComponent', () => {
 
 
 ---
-File: heat-index-calculator/heat-index-calculator.component.sass
+File: app/heat-index-calculator/heat-index-calculator.component.sass
 ---
 .heat-index-calculator-container
   display: flex
@@ -440,7 +544,7 @@ input, select
 
 
 ---
-File: heat-index-calculator/heat-index-calculator.component.ts
+File: app/heat-index-calculator/heat-index-calculator.component.ts
 ---
 import { Component } from '@angular/core';
 
@@ -484,7 +588,7 @@ export class HeatIndexCalculatorComponent {
 
 
 ---
-File: heat-index-calculator/heat-index-calculator.component.html
+File: app/heat-index-calculator/heat-index-calculator.component.html
 ---
 <div class="heat-index-calculator-container">
     <h2>Heat Index Calculator</h2>
@@ -510,7 +614,7 @@ File: heat-index-calculator/heat-index-calculator.component.html
   
 
 ---
-File: heat-index-calculator/heat-index-calculator.component.spec.ts
+File: app/heat-index-calculator/heat-index-calculator.component.spec.ts
 ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -535,5 +639,10 @@ describe('HeatIndexCalculatorComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+
+
+---
+File: assets/.gitkeep
+---
 
 

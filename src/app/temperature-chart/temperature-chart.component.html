@@ -1,9 +1,16 @@
-<div *ngIf="temperatureData.length">
-    <h2>Temperature Chart</h2>
-    <ul>
-      <li *ngFor="let temp of temperatureData; let i = index">
-        Time: {{ timeData[i] }}, Temperature: {{ temp }}°C
-      </li>
-    </ul>
-  </div>
-  
+<div *ngIf="temperatureData && temperatureData.length > 0">
+  <h2>Temperature Chart</h2>
+  <ngx-charts-line-chart
+      [view]="view"
+      [results]="temperatureData"
+      [gradient]="gradient"
+      [xAxis]="showXAxis"
+      [yAxis]="showYAxis"
+      [legend]="showLegend"
+      [showXAxisLabel]="showXAxisLabel"
+      [showYAxisLabel]="showYAxisLabel"
+      [xAxisLabel]="xAxisLabel"
+      [yAxisLabel]="yAxisLabel"
+      [timeline]="timeline">
+  </ngx-charts-line-chart>
+</div>
