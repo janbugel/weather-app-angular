@@ -10,34 +10,37 @@ export class HeatIndexCalculatorComponent {
   humidity: number | null = null;
   temperatureUnit: 'C' | 'F' = 'C';
   heatIndex: number | null = null;
+  message: string | null = null; // New property to hold messages
 
   calculateHeatIndex(): void {
+    this.heatIndex = null; // Reset heat index for each calculation
+    this.message = null; // Reset message for each calculation
+
     if (this.temperature !== null && this.humidity !== null) {
       if (this.temperatureUnit === 'F') {
-        this.heatIndex = this.calculateHeatIndexFahrenheit(
-          this.temperature,
-          this.humidity
-        );
+        if (this.temperature < 80) {
+          this.message = "Heat Index value cannot be calculated for temperatures below 80°F.";
+        } else {
+          this.heatIndex = this.calculateHeatIndexFahrenheit(
+            this.temperature,
+            this.humidity
+          );
+        }
       } else {
-        // Convert Celsius to Fahrenheit for calculation
-        const tempInFahrenheit = this.convertCelsiusToFahrenheit(
-          this.temperature
-        );
-        const heatIndexFahrenheit = this.calculateHeatIndexFahrenheit(
-          tempInFahrenheit,
-          this.humidity
-        );
-        // Convert back to Celsius for the result
-        this.heatIndex = this.convertFahrenheitToCelsius(heatIndexFahrenheit);
+        if (this.temperature < 26.7) {
+          this.message = "Heat Index value cannot be calculated for temperatures below 26.7°C.";
+        } else {
+          // Convert Celsius to Fahrenheit for calculation
+          const tempInFahrenheit = this.convertCelsiusToFahrenheit(this.temperature);
+          this.heatIndex = this.convertFahrenheitToCelsius(
+            this.calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity)
+          );
+        }
       }
     }
   }
 
   private calculateHeatIndexFahrenheit(temp: number, humidity: number): number {
-    // Enhanced Heat Index formula using the provided files and logic
-    if (temp < 80) {
-      return temp;
-    }
     let heatIndex =
       -42.379 +
       2.04901523 * temp +

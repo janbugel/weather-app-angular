@@ -1,18 +1,11 @@
 <div class="heat-index-calculator-container">
   <mat-card class="heat-index-card">
-    <mat-card-header>
-    </mat-card-header>
+    <mat-card-header></mat-card-header>
     <mat-card-content>
       <form (ngSubmit)="calculateHeatIndex()" class="form-style">
         <mat-form-field appearance="fill">
           <mat-label>Temperature</mat-label>
-          <input
-            matInput
-            type="number"
-            [(ngModel)]="temperature"
-            name="temperature"
-            required
-          />
+          <input matInput type="number" [(ngModel)]="temperature" name="temperature" required />
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Temperature Unit</mat-label>
@@ -23,23 +16,17 @@
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Relative Humidity (%)</mat-label>
-          <input
-            matInput
-            type="number"
-            [(ngModel)]="humidity"
-            name="humidity"
-            required
-          />
+          <input matInput type="number" [(ngModel)]="humidity" name="humidity" required />
         </mat-form-field>
-        <button mat-raised-button color="primary" type="submit">
-          Calculate
-        </button>
+        <button mat-raised-button color="primary" type="submit">Calculate</button>
       </form>
     </mat-card-content>
     <mat-card-actions *ngIf="heatIndex !== null">
-      <p class="heat-index-result">
-        Heat Index: {{ heatIndex | number : "1.0-1" }} {{ temperatureUnit }}
-      </p>
+      <p class="heat-index-result">Heat Index: {{ heatIndex | number : '1.0-1' }} {{ temperatureUnit }}</p>
     </mat-card-actions>
   </mat-card>
+</div>
+<!-- Separate warning message from the card component -->
+<div *ngIf="message" class="warning-message-container">
+  <p class="warning-message">{{ message }}</p>
 </div>

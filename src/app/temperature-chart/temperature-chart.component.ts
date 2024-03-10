@@ -20,7 +20,7 @@ export class TemperatureChartComponent implements OnInit {
   public showYAxisLabel = true;
   public yAxisLabel = 'Temperature (°C)';
   public timeline = true;
-  public colorScheme = 'cool'; // Use predefined color schemes like 'vivid', 'natural', etc.
+  public colorScheme = 'vivid'; // Use predefined color schemes like 'vivid', 'natural', etc.
 
   constructor(private forecastService: ForecastService) {} // Updated service injection
 
