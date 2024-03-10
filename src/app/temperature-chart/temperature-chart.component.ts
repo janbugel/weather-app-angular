@@ -1,3 +1,5 @@
+// app/temperature-chart/temperature-chart.component.ts
+
 import { Component, OnInit, HostListener } from '@angular/core';
 import { WeatherService } from '../weather.service';
 
@@ -39,15 +41,11 @@ export class TemperatureChartComponent implements OnInit {
   fetchTemperatureData(): void {
     const lat = 51.5074; // Latitude for London
     const lon = -0.1278; // Longitude for London
-    const currentDate = new Date();
-    const endDate = currentDate.toISOString().split('T')[0]; // Format the current date as YYYY-MM-DD
-    const pastDate = new Date(currentDate.setDate(currentDate.getDate() - 7)).toISOString().split('T')[0]; // Get the date 7 days ago
 
-    this.weatherService.getWeatherHistoricalData(lat, lon, new Date(pastDate), new Date(endDate)).subscribe({
+    this.weatherService.getWeatherForecast(lat, lon).subscribe({
       next: (data) => {
-        let temperatures = data.hourly.temperature_2m;
-        let times = data.hourly.time;
-        this.temperatureData = this.transformDataForChart(times, temperatures);
+        // Transform data for chart
+        this.temperatureData = this.transformDataForChart(data);
       },
       error: (error) => {
         console.error('Error fetching temperature data:', error);
@@ -55,12 +53,13 @@ export class TemperatureChartComponent implements OnInit {
     });
   }
 
-  transformDataForChart(times: string[], temperatures: number[]): any[] {
+  transformDataForChart(data: any): any[] {
+    // Transform forecast data for chart
     let chartData = [];
-    for (let i = 0; i < times.length; i++) {
+    for (let i = 0; i < data.hourly.time.length; i++) {
       chartData.push({
-        name: new Date(times[i]).toLocaleString(),
-        value: temperatures[i]
+        name: new Date(data.hourly.time[i]).toLocaleString(),
+        value: data.hourly.temperature_2m[i]
       });
     }
     return [{ name: 'Temperature', series: chartData }];

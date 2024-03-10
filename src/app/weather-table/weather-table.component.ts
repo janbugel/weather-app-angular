@@ -1,3 +1,5 @@
+// app/weather-table/weather-table.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { WeatherService } from '../weather.service';
 
@@ -22,29 +24,15 @@ export class WeatherTableComponent implements OnInit {
     // Fetch forecast data
     this.weatherService.getWeatherForecast(lat, lon).subscribe({
       next: (forecastData) => {
-        // Fetch historical data
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setDate(endDate.getDate() - 7); // Set to 7 days ago
-
-        this.weatherService.getWeatherHistoricalData(lat, lon, startDate, endDate).subscribe({
-          next: (historicalData) => {
-            // Combine and transform forecast and historical data
-            const combinedData = [
-              ...this.transformWeatherData(forecastData),
-              ...this.transformWeatherData(historicalData)
-            ];
-            this.weatherData = combinedData.sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
-          },
-          error: (error) => console.error('Error fetching historical data:', error)
-        });
+        // Transform forecast data
+        this.weatherData = this.transformWeatherData(forecastData);
       },
       error: (error) => console.error('Error fetching forecast data:', error)
     });
   }
 
   transformWeatherData(data: any): any[] {
-    // Assumes potentially common formatting logic between historical and forecast data
+    // Transforming forecast data
     return data.hourly.time.map((time: string, index: number) => ({
       datetime: new Date(time).toLocaleString(),
       temperature: data.hourly.temperature_2m[index],
