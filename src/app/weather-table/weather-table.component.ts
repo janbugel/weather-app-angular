@@ -1,5 +1,3 @@
-// app/weather-table/weather-table.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { WeatherService } from '../weather.service';
 
@@ -11,33 +9,45 @@ import { WeatherService } from '../weather.service';
 export class WeatherTableComponent implements OnInit {
   weatherData: any[] = [];
   displayedColumns: string[] = ['datetime', 'temperature', 'humidity', 'pressure'];
+  private readonly londonLat = 51.5074;
+  private readonly londonLon = -0.1278;
+  private readonly startDate = '2023-01-01'; // Example start date for historical data
+  private readonly endDate = '2023-01-07'; // Example end date for historical data
 
   constructor(private weatherService: WeatherService) {}
 
   ngOnInit(): void {
-    this.fetchWeatherData();
+    this.fetchForecastData();
+    this.fetchHistoricalData();
   }
 
-  fetchWeatherData(): void {
-    const lat = 51.5074; // London's latitude
-    const lon = -0.1278; // London's longitude
-    // Fetch forecast data
-    this.weatherService.getWeatherForecast(lat, lon).subscribe({
-      next: (forecastData) => {
-        // Transform forecast data
-        this.weatherData = this.transformWeatherData(forecastData);
-      },
-      error: (error) => console.error('Error fetching forecast data:', error)
+  private fetchForecastData(): void {
+    this.weatherService.getWeatherForecast(this.londonLat, this.londonLon).subscribe({
+      next: (data) => this.weatherData = [...this.weatherData, ...this.transformWeatherData(data)],
+      error: (error) => console.error('Error fetching forecast data:', error),
     });
   }
 
-  transformWeatherData(data: any): any[] {
-    // Transforming forecast data
+  private fetchHistoricalData(): void {
+    const params = {
+      latitude: this.londonLat,
+      longitude: this.londonLon,
+      start_date: this.startDate,
+      end_date: this.endDate,
+      hourly: 'temperature_2m,relative_humidity_2m,pressure_msl', // Adjust based on what's needed
+    };
+    this.weatherService.getHistoricalWeather(params).subscribe({
+      next: (data) => this.weatherData = [...this.weatherData, ...this.transformWeatherData(data)],
+      error: (error) => console.error('Error fetching historical data:', error),
+    });
+  }
+
+  private transformWeatherData(data: any): any[] {
     return data.hourly.time.map((time: string, index: number) => ({
       datetime: new Date(time).toLocaleString(),
       temperature: data.hourly.temperature_2m[index],
       humidity: data.hourly.relative_humidity_2m[index],
-      pressure: data.hourly.pressure_msl ? data.hourly.pressure_msl[index] : 'N/A'
+      pressure: data.hourly.pressure_msl?.[index] ?? 'N/A',
     }));
   }
 }

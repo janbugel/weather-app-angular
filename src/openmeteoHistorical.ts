@@ -1,6 +1,3 @@
-// Install: npm install openmeteo
-// Usage:
-
 import { fetchWeatherApi } from 'openmeteo';
 	
 const params = {
