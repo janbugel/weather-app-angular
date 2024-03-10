@@ -13,7 +13,6 @@ import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index
 
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
-// material ui
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
