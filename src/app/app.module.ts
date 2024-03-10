@@ -32,7 +32,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     TabsComponent,
     WeatherTableComponent,
     TemperatureChartComponent,
-    HeatIndexCalculatorComponent
+    HeatIndexCalculatorComponent,
   ],
   imports: [
     BrowserModule,
@@ -53,9 +53,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatIconModule,
     MatToolbarModule,
     MatTabsModule,
-    NgxChartsModule
+    NgxChartsModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

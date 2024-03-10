@@ -49,7 +49,7 @@ export class TemperatureChartComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching temperature data:', error);
-      }
+      },
     });
   }
 
@@ -59,7 +59,7 @@ export class TemperatureChartComponent implements OnInit {
     for (let i = 0; i < data.hourly.time.length; i++) {
       chartData.push({
         name: new Date(data.hourly.time[i]).toLocaleString(),
-        value: data.hourly.temperature_2m[i]
+        value: data.hourly.temperature_2m[i],
       });
     }
     return [{ name: 'Temperature', series: chartData }];

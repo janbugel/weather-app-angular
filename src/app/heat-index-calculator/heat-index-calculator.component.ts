@@ -19,7 +19,8 @@ export class HeatIndexCalculatorComponent {
     if (this.temperature !== null && this.humidity !== null) {
       if (this.temperatureUnit === 'F') {
         if (this.temperature < 80) {
-          this.message = "Heat Index value cannot be calculated for temperatures below 80°F.";
+          this.message =
+            'Heat Index value cannot be calculated for temperatures below 80°F.';
         } else {
           this.heatIndex = this.calculateHeatIndexFahrenheit(
             this.temperature,
@@ -28,10 +29,13 @@ export class HeatIndexCalculatorComponent {
         }
       } else {
         if (this.temperature < 26.7) {
-          this.message = "Heat Index value cannot be calculated for temperatures below 26.7°C.";
+          this.message =
+            'Heat Index value cannot be calculated for temperatures below 26.7°C.';
         } else {
           // Convert Celsius to Fahrenheit for calculation
-          const tempInFahrenheit = this.convertCelsiusToFahrenheit(this.temperature);
+          const tempInFahrenheit = this.convertCelsiusToFahrenheit(
+            this.temperature
+          );
           this.heatIndex = this.convertFahrenheitToCelsius(
             this.calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity)
           );

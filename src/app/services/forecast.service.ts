@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ForecastService {
   private baseUrl = 'https://api.open-meteo.com/v1/forecast';
@@ -15,9 +15,8 @@ export class ForecastService {
     const params = {
       latitude: latitude,
       longitude: longitude,
-      hourly: 'temperature_2m,relative_humidity_2m,pressure_msl'
+      hourly: 'temperature_2m,relative_humidity_2m,pressure_msl',
     };
     return this.http.get(this.baseUrl, { params });
   }
 }
-
