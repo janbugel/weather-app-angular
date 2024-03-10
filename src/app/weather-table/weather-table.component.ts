@@ -1,4 +1,3 @@
-// app/weather-table/weather-table.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ForecastService } from '../services/forecast.service';
 import { HistoricalService } from '../services/historical.service';
@@ -23,7 +22,6 @@ export class WeatherTableComponent implements OnInit {
   }
 
   fetchData(): void {
-    // Fetch historical data for the past week
     this.historicalService.getHistoricalWeather({
       latitude: this.londonLat,
       longitude: this.londonLon,
@@ -32,17 +30,20 @@ export class WeatherTableComponent implements OnInit {
       hourly: 'temperature_2m,relative_humidity_2m,pressure_msl'
     }).subscribe({
       next: (historicalData) => {
-        this.weatherData = this.transformWeatherData(historicalData);
+        this.weatherData = [...this.weatherData, ...this.transformWeatherData(historicalData)];
+        this.fetchForecastData(); // Fetch forecast data after historical data is loaded
       },
       error: (error) => {
         console.error('Error fetching historical data:', error);
+        this.fetchForecastData(); // Attempt to fetch forecast data even if historical data fails
       }
     });
+  }
 
-    // Fetch forecast data for the next few days
+  fetchForecastData(): void {
     this.forecastService.getWeatherForecast(this.londonLat, this.londonLon).subscribe({
       next: (forecastData) => {
-        this.weatherData.push(...this.transformWeatherData(forecastData));
+        this.weatherData = [...this.weatherData, ...this.transformWeatherData(forecastData)];
       },
       error: (error) => {
         console.error('Error fetching forecast data:', error);
