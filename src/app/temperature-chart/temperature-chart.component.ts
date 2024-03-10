@@ -1,7 +1,7 @@
 // app/temperature-chart/temperature-chart.component.ts
 
 import { Component, OnInit, HostListener } from '@angular/core';
-import { WeatherService } from '../weather.service';
+import { ForecastService } from '../services/forecast.service'; // Updated import statement
 
 @Component({
   selector: 'app-temperature-chart',
@@ -22,7 +22,7 @@ export class TemperatureChartComponent implements OnInit {
   public timeline = true;
   public colorScheme = 'cool'; // Use predefined color schemes like 'vivid', 'natural', etc.
 
-  constructor(private weatherService: WeatherService) {}
+  constructor(private forecastService: ForecastService) {} // Updated service injection
 
   ngOnInit(): void {
     this.updateChartDimensions();
@@ -42,7 +42,7 @@ export class TemperatureChartComponent implements OnInit {
     const lat = 51.5074; // Latitude for London
     const lon = -0.1278; // Longitude for London
 
-    this.weatherService.getWeatherForecast(lat, lon).subscribe({
+    this.forecastService.getWeatherForecast(lat, lon).subscribe({
       next: (data) => {
         // Transform data for chart
         this.temperatureData = this.transformDataForChart(data);
