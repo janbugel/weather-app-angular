@@ -120,10 +120,7 @@ platformBrowserDynamic()
 --- app/app.component.html ---
 <div class="app-header">
   <div class="tabs-container">
-    <button class="menu-icon" *ngIf="isMobile" (click)="toggleMenu()">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <mat-tab-group class="desktop-tabs" *ngIf="!isMobile">
+    <mat-tab-group class="desktop-tabs">
       <mat-tab label="Weather Table">
         <app-weather-table></app-weather-table>
       </mat-tab>
@@ -134,7 +131,6 @@ platformBrowserDynamic()
         <app-heat-index-calculator></app-heat-index-calculator>
       </mat-tab>
     </mat-tab-group>
-    <!-- Placeholder for mobile menu content when toggled -->
   </div>
 </div>
 <router-outlet></router-outlet>
@@ -200,12 +196,14 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { TabsComponent } from './tabs/tabs.component';
 import { WeatherTableComponent } from './weather-table/weather-table.component';
 import { TemperatureChartComponent } from './temperature-chart/temperature-chart.component';
 import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index-calculator.component';
+
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 import { MatTabsModule } from '@angular/material/tabs';
@@ -247,7 +245,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatIconModule,
     MatToolbarModule,
     MatTabsModule,
-    NgxChartsModule
+    NgxChartsModule // Ensure ngx-charts module is imported
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -292,26 +290,14 @@ export class WeatherService {
 
 
 --- app/app.component.ts ---
-import { Component, HostListener } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.sass'],
 })
-export class AppComponent {
-  public isMobile: boolean = window.innerWidth < 768;
-  public menuOpen: boolean = false;
-
-  @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
-    this.isMobile = window.innerWidth < 768;
-  }
-
-  toggleMenu(): void {
-    this.menuOpen = !this.menuOpen;
-  }
-}
+export class AppComponent {}
 
 
 --- app/app.component.sass ---
@@ -428,28 +414,40 @@ describe('WeatherTableComponent', () => {
 
 
 --- app/weather-table/weather-table.component.html ---
-<!-- Existing content, ensure there's a row for displaying datetime -->
-<div *ngIf="combinedData.length; else loading">
-  <table class="weather-table">
-    <thead>
-      <tr>
-        <th>Date/Time</th>
-        <th>Temperature (°C)</th>
-        <th>Relative Humidity (%)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let data of combinedData">
-        <td>{{ data.datetime }}</td>
-        <td>{{ data.temperature }}</td>
-        <td>{{ data.humidity }}</td>
-      </tr>
-    </tbody>
-  </table>
+<div class="weather-container">
+  <h2>London weather</h2>
+  <div *ngIf="weatherData.length; else loading">
+    <table mat-table [dataSource]="weatherData" class="mat-elevation-z8">
+      <!-- Columns definitions -->
+      <ng-container matColumnDef="datetime">
+        <th mat-header-cell *matHeaderCellDef>Date/Time</th>
+        <td mat-cell *matCellDef="let element">{{ element.datetime }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="temperature">
+        <th mat-header-cell *matHeaderCellDef>Temperature (°C)</th>
+        <td mat-cell *matCellDef="let element">{{ element.temperature }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="humidity">
+        <th mat-header-cell *matHeaderCellDef>Humidity (%)</th>
+        <td mat-cell *matCellDef="let element">{{ element.humidity }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="pressure">
+        <th mat-header-cell *matHeaderCellDef>Pressure (hPa)</th>
+        <td mat-cell *matCellDef="let element">{{ element.pressure }}</td>
+      </ng-container>
+
+      <!-- Rows definitions -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+  <ng-template #loading>
+    <p>Loading weather data...</p>
+  </ng-template>
 </div>
-<ng-template #loading>
-  <p>Loading weather data...</p>
-</ng-template>
 
 
 
@@ -475,6 +473,15 @@ describe('WeatherTableComponent', () => {
   text-align: center
   font-size: 16px
 
+// aling text on h2 title in the center
+.title
+  text-align: center
+  padding: 10px
+  margin: 10px
+  font-size: 20px
+  font-weight: bold
+  // blue color
+  color: #1976d2
 
 
 --- app/weather-table/weather-table.component.ts ---
@@ -487,7 +494,8 @@ import { WeatherService } from '../weather.service';
   styleUrls: ['./weather-table.component.sass'],
 })
 export class WeatherTableComponent implements OnInit {
-  combinedData: any[] = [];
+  weatherData: any[] = [];
+  displayedColumns: string[] = ['datetime', 'temperature', 'humidity', 'pressure'];
 
   constructor(private weatherService: WeatherService) {}
 
@@ -496,48 +504,54 @@ export class WeatherTableComponent implements OnInit {
   }
 
   fetchWeatherData(): void {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(endDate.getDate() - 7); // Fetching data for the last 7 days as an example
+    const lat = 51.5074; // London's latitude
+    const lon = -0.1278; // London's longitude
+    // Fetch forecast data
+    this.weatherService.getWeatherForecast(lat, lon).subscribe({
+      next: (forecastData) => {
+        // Fetch historical data
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - 7); // Set to 7 days ago
 
-    this.weatherService
-      .getWeatherHistoricalData(51.5074, -0.1278, startDate, endDate)
-      .subscribe(
-        (data) => {
-          this.combinedData = data.hourly.time.map(
-            (time: string, index: number) => {
-              const dateTime = new Date(time);
-              const hour = dateTime.getHours();
-              const emoji = hour >= 6 && hour < 18 ? '☀️' : '🌙'; // Sun emoji from 6 AM to 6 PM, else Moon
-              return {
-                datetime: `${emoji} ${dateTime.toLocaleString()} `,
-                temperature: data.hourly.temperature_2m[index],
-                humidity: data.hourly.relative_humidity_2m[index],
-              };
-            }
-          );
-        },
-        (error) => {
-          console.error('Error fetching historical data:', error);
-        }
-      );
+        this.weatherService.getWeatherHistoricalData(lat, lon, startDate, endDate).subscribe({
+          next: (historicalData) => {
+            // Combine and transform forecast and historical data
+            const combinedData = [
+              ...this.transformWeatherData(forecastData),
+              ...this.transformWeatherData(historicalData)
+            ];
+            this.weatherData = combinedData.sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+          },
+          error: (error) => console.error('Error fetching historical data:', error)
+        });
+      },
+      error: (error) => console.error('Error fetching forecast data:', error)
+    });
+  }
+
+  transformWeatherData(data: any): any[] {
+    // Assumes potentially common formatting logic between historical and forecast data
+    return data.hourly.time.map((time: string, index: number) => ({
+      datetime: new Date(time).toLocaleString(),
+      temperature: data.hourly.temperature_2m[index],
+      humidity: data.hourly.relative_humidity_2m[index],
+      pressure: data.hourly.pressure_msl ? data.hourly.pressure_msl[index] : 'N/A'
+    }));
   }
 }
 
 
-
 --- app/temperature-chart/temperature-chart.component.sass ---
-// SASS uses indentation to denote blocks, ensure proper indentation
 .temperature-chart-container
-  display: flex
-  justify-content: center
+  display: block
+  overflow-x: hidden
+  padding: 20px
 
-  ngx-charts-line-chart
-    max-width: 100%
 
 
 --- app/temperature-chart/temperature-chart.component.ts ---
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { WeatherService } from '../weather.service';
 
 @Component({
@@ -547,7 +561,7 @@ import { WeatherService } from '../weather.service';
 })
 export class TemperatureChartComponent implements OnInit {
   public temperatureData: any[] = [];
-  public view: [number, number] = [700, 300];
+  public view: any = [innerWidth / 1.2, 400];
   public showXAxis = true;
   public showYAxis = true;
   public gradient = false;
@@ -557,50 +571,73 @@ export class TemperatureChartComponent implements OnInit {
   public showYAxisLabel = true;
   public yAxisLabel = 'Temperature (°C)';
   public timeline = true;
-  public colorScheme = {
-    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'],
-  };
+  public colorScheme = 'cool'; // Use predefined color schemes like 'vivid', 'natural', etc.
 
   constructor(private weatherService: WeatherService) {}
 
   ngOnInit(): void {
+    this.updateChartDimensions();
     this.fetchTemperatureData();
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.updateChartDimensions();
+  }
+
+  updateChartDimensions(): void {
+    this.view = [innerWidth / 1.2, 400]; // Dynamically adjusts the chart dimensions based on the window width
+  }
+
   fetchTemperatureData(): void {
-    this.weatherService
-      .getWeatherForecast(51.5074, -0.1278)
-      .subscribe((data) => {
-        this.temperatureData = [
-          {
-            name: 'Temperature',
-            series: this.transformDataForChart(
-              data.hourly.time,
-              data.hourly.temperature_2m
-            ),
-          },
-        ];
-      });
+    const lat = 51.5074; // Latitude for London
+    const lon = -0.1278; // Longitude for London
+    const currentDate = new Date();
+    const endDate = currentDate.toISOString().split('T')[0]; // Format the current date as YYYY-MM-DD
+    const pastDate = new Date(currentDate.setDate(currentDate.getDate() - 7)).toISOString().split('T')[0]; // Get the date 7 days ago
+
+    this.weatherService.getWeatherHistoricalData(lat, lon, new Date(pastDate), new Date(endDate)).subscribe({
+      next: (data) => {
+        let temperatures = data.hourly.temperature_2m;
+        let times = data.hourly.time;
+        this.temperatureData = this.transformDataForChart(times, temperatures);
+      },
+      error: (error) => {
+        console.error('Error fetching temperature data:', error);
+      }
+    });
   }
 
   transformDataForChart(times: string[], temperatures: number[]): any[] {
-    return times.map((time, index) => ({
-      name: new Date(time).toLocaleString(),
-      value: temperatures[index],
-    }));
+    let chartData = [];
+    for (let i = 0; i < times.length; i++) {
+      chartData.push({
+        name: new Date(times[i]).toLocaleString(),
+        value: temperatures[i]
+      });
+    }
+    return [{ name: 'Temperature', series: chartData }];
   }
 }
 
 
 
 --- app/temperature-chart/temperature-chart.component.html ---
-<div *ngIf="temperatureData && temperatureData.length > 0" class="temperature-chart-container">
+<!-- Add #chartContainer reference -->
+<div #chartContainer *ngIf="temperatureData && temperatureData.length > 0" class="temperature-chart-container">
   <ngx-charts-line-chart
     [view]="view"
+    [scheme]="colorScheme"
     [results]="temperatureData"
-    [xAxisLabel]="'Time'"
-    [yAxisLabel]="'Temperature (°C)'"
-  >
+    [gradient]="gradient"
+    [xAxis]="showXAxis"
+    [yAxis]="showYAxis"
+    [legend]="showLegend"
+    [showXAxisLabel]="showXAxisLabel"
+    [showYAxisLabel]="showYAxisLabel"
+    [xAxisLabel]="xAxisLabel"
+    [yAxisLabel]="yAxisLabel"
+    [timeline]="timeline">
   </ngx-charts-line-chart>
 </div>
 
