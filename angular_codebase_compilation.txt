@@ -40,9 +40,6 @@ platformBrowserDynamic()
 
 
 --- openmeteoHistorical.ts ---
-// Install: npm install openmeteo
-// Usage:
-
 import { fetchWeatherApi } from 'openmeteo';
 	
 const params = {
@@ -304,36 +301,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 export class AppModule {}
 
 
---- app/weather.service.ts ---
-// app/weather.service.ts
-
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-@Injectable({
-  providedIn: 'root',
-})
-export class WeatherService {
-  private baseUrl = 'https://api.open-meteo.com/v1';
-
-  constructor(private http: HttpClient) {}
-
-  // Method for fetching forecast data
-  getWeatherForecast(latitude: number, longitude: number): Observable<any> {
-    const url = `${this.baseUrl}/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relative_humidity_2m,pressure_msl`;
-    return this.http.get(url);
-  }
-
-  // Method for fetching historical weather data
-  getHistoricalWeather(latitude: number, longitude: number, startDate: string, endDate: string): Observable<any> {
-    const url = `${this.baseUrl}/archive?latitude=${latitude}&longitude=${longitude}&start_date=${startDate}&end_date=${endDate}&hourly=temperature_2m,relative_humidity_2m,pressure_msl,weather_state_2d`;
-    return this.http.get(url);
-  }
-}
-
-
-
 --- app/app.component.ts ---
 import { Component } from '@angular/core';
 
@@ -342,7 +309,11 @@ import { Component } from '@angular/core';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.sass'],
 })
-export class AppComponent {}
+export class AppComponent {
+  title(title: any) {
+    throw new Error('Method not implemented.');
+  }
+}
 
 
 --- app/app.component.sass ---
@@ -355,26 +326,6 @@ export class AppComponent {}
 h1
   color: #1976d2
   margin-bottom: 20px
-
-
-
---- app/weather.service.spec.ts ---
-import { TestBed } from '@angular/core/testing';
-
-import { WeatherService } from './weather.service';
-
-describe('WeatherService', () => {
-  let service: WeatherService;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(WeatherService);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
 
 
 
@@ -460,26 +411,35 @@ describe('WeatherTableComponent', () => {
 
 --- app/weather-table/weather-table.component.html ---
 <!-- app/weather-table/weather-table.component.html -->
+<table mat-table [dataSource]="weatherData" class="mat-elevation-z8">
+  <!-- Datetime Column -->
+  <ng-container matColumnDef="datetime">
+    <th mat-header-cell *matHeaderCellDef>Date Time</th>
+    <td mat-cell *matCellDef="let weather">{{ weather.datetime }}</td>
+  </ng-container>
 
-<div class="weather-container">
-  <h2 class="title">London Weather</h2>
-  <div *ngIf="weatherData.length; else loading">
-    <table mat-table [dataSource]="weatherData" class="mat-elevation-z8">
-      <!-- Columns definitions -->
-      <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-        <th mat-header-cell *matHeaderCellDef>{{ column | titlecase }}</th>
-        <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-      </ng-container>
+  <!-- Temperature Column -->
+  <ng-container matColumnDef="temperature">
+    <th mat-header-cell *matHeaderCellDef>Temperature (°C)</th>
+    <td mat-cell *matCellDef="let weather">{{ weather.temperature }}</td>
+  </ng-container>
 
-      <!-- Rows definitions -->
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-  </div>
-  <ng-template #loading>
-    <p>Loading weather data...</p>
-  </ng-template>
-</div>
+  <!-- Humidity Column -->
+  <ng-container matColumnDef="humidity">
+    <th mat-header-cell *matHeaderCellDef>Humidity (%)</th>
+    <td mat-cell *matCellDef="let weather">{{ weather.humidity }}</td>
+  </ng-container>
+
+  <!-- Pressure Column -->
+  <ng-container matColumnDef="pressure">
+    <th mat-header-cell *matHeaderCellDef>Pressure (hPa)</th>
+    <td mat-cell *matCellDef="let weather">{{ weather.pressure }}</td>
+  </ng-container>
+
+  <!-- Table Rows -->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
 
 
 
@@ -517,8 +477,10 @@ describe('WeatherTableComponent', () => {
 
 
 --- app/weather-table/weather-table.component.ts ---
+// app/weather-table/weather-table.component.ts
 import { Component, OnInit } from '@angular/core';
-import { WeatherService } from '../weather.service';
+import { ForecastService } from '../services/forecast.service';
+import { HistoricalService } from '../services/historical.service';
 
 @Component({
   selector: 'app-weather-table',
@@ -528,34 +490,51 @@ import { WeatherService } from '../weather.service';
 export class WeatherTableComponent implements OnInit {
   weatherData: any[] = [];
   displayedColumns: string[] = ['datetime', 'temperature', 'humidity', 'pressure'];
+  private readonly londonLat = 51.5074;
+  private readonly londonLon = -0.1278;
+  private readonly endDate = new Date().toISOString().split('T')[0];
+  private readonly startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-  constructor(private weatherService: WeatherService) {}
+  constructor(private forecastService: ForecastService, private historicalService: HistoricalService) {}
 
   ngOnInit(): void {
-    this.fetchWeatherData();
+    this.fetchData();
   }
 
-  fetchWeatherData(): void {
-    const lat = 51.5074; // London's latitude
-    const lon = -0.1278; // London's longitude
-    
-    // Fetch forecast data
-    this.weatherService.getWeatherForecast(lat, lon).subscribe({
-      next: (forecastData) => {
-        // Transform forecast data
-        this.weatherData = this.transformWeatherData(forecastData);
+  fetchData(): void {
+    // Fetch historical data for the past week
+    this.historicalService.getHistoricalWeather({
+      latitude: this.londonLat,
+      longitude: this.londonLon,
+      start_date: this.startDate,
+      end_date: this.endDate,
+      hourly: 'temperature_2m,relative_humidity_2m,pressure_msl'
+    }).subscribe({
+      next: (historicalData) => {
+        this.weatherData = this.transformWeatherData(historicalData);
       },
-      error: (error) => console.error('Error fetching forecast data:', error)
+      error: (error) => {
+        console.error('Error fetching historical data:', error);
+      }
+    });
+
+    // Fetch forecast data for the next few days
+    this.forecastService.getWeatherForecast(this.londonLat, this.londonLon).subscribe({
+      next: (forecastData) => {
+        this.weatherData.push(...this.transformWeatherData(forecastData));
+      },
+      error: (error) => {
+        console.error('Error fetching forecast data:', error);
+      }
     });
   }
 
-  transformWeatherData(data: any): any[] {
-    // Transforming forecast data
+  private transformWeatherData(data: any): any[] {
     return data.hourly.time.map((time: string, index: number) => ({
       datetime: new Date(time).toLocaleString(),
       temperature: data.hourly.temperature_2m[index],
       humidity: data.hourly.relative_humidity_2m[index],
-      pressure: data.hourly.pressure_msl ? data.hourly.pressure_msl[index] : 'N/A'
+      pressure: data.hourly.pressure_msl?.[index] ?? 'N/A',
     }));
   }
 }
@@ -574,7 +553,7 @@ export class WeatherTableComponent implements OnInit {
 // app/temperature-chart/temperature-chart.component.ts
 
 import { Component, OnInit, HostListener } from '@angular/core';
-import { WeatherService } from '../weather.service';
+import { ForecastService } from '../services/forecast.service'; // Updated import statement
 
 @Component({
   selector: 'app-temperature-chart',
@@ -595,7 +574,7 @@ export class TemperatureChartComponent implements OnInit {
   public timeline = true;
   public colorScheme = 'cool'; // Use predefined color schemes like 'vivid', 'natural', etc.
 
-  constructor(private weatherService: WeatherService) {}
+  constructor(private forecastService: ForecastService) {} // Updated service injection
 
   ngOnInit(): void {
     this.updateChartDimensions();
@@ -615,7 +594,7 @@ export class TemperatureChartComponent implements OnInit {
     const lat = 51.5074; // Latitude for London
     const lon = -0.1278; // Longitude for London
 
-    this.weatherService.getWeatherForecast(lat, lon).subscribe({
+    this.forecastService.getWeatherForecast(lat, lon).subscribe({
       next: (data) => {
         // Transform data for chart
         this.temperatureData = this.transformDataForChart(data);
@@ -842,6 +821,194 @@ describe('HeatIndexCalculatorComponent', () => {
   });
 });
 
+
+
+--- app/services/forecast.service.ts ---
+// app/services/forecast.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ForecastService {
+  private baseUrl = 'https://api.open-meteo.com/v1/forecast';
+
+  constructor(private http: HttpClient) {}
+
+  getWeatherForecast(latitude: number, longitude: number): Observable<any> {
+    const params = {
+      latitude: latitude,
+      longitude: longitude,
+      hourly: 'temperature_2m,relative_humidity_2m,pressure_msl'
+    };
+    return this.http.get(this.baseUrl, { params });
+  }
+}
+
+/* rewrite this file with full api logic like this
+
+// Install: npm install openmeteo
+// Usage:
+
+import { fetchWeatherApi } from 'openmeteo';
+
+const params = {
+  latitude: 52.52,
+  longitude: 13.41,
+  hourly: 'temperature_2m',
+};
+const url = 'https://api.open-meteo.com/v1/forecast';
+const responses = await fetchWeatherApi(url, params);
+
+// Helper function to form time ranges
+const range = (start: number, stop: number, step: number) =>
+  Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
+
+// Process first location. Add a for-loop for multiple locations or weather models
+const response = responses[0];
+
+// Attributes for timezone and location
+const utcOffsetSeconds = response.utcOffsetSeconds();
+const timezone = response.timezone();
+const timezoneAbbreviation = response.timezoneAbbreviation();
+const latitude = response.latitude();
+const longitude = response.longitude();
+
+const hourly = response.hourly()!;
+
+// Note: The order of weather variables in the URL query and the indices below need to match!
+const weatherData = {
+  hourly: {
+    time: range(
+      Number(hourly.time()),
+      Number(hourly.timeEnd()),
+      hourly.interval()
+    ).map((t) => new Date((t + utcOffsetSeconds) * 1000)),
+    temperature2m: hourly.variables(0)!.valuesArray()!,
+  },
+};
+
+// `weatherData` now contains a simple structure with arrays for datetime and weather data
+for (let i = 0; i < weatherData.hourly.time.length; i++) {
+  console.log(
+    weatherData.hourly.time[i].toISOString(),
+    weatherData.hourly.temperature2m[i]
+  );
+}
+*/
+
+
+--- app/services/historical.service.spec.ts ---
+import { TestBed } from '@angular/core/testing';
+
+import { HistoricalService } from './historical.service';
+
+describe('HistoricalService', () => {
+  let service: HistoricalService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(HistoricalService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+
+
+
+--- app/services/forecast.service.spec.ts ---
+import { TestBed } from '@angular/core/testing';
+
+import { ForecastService } from './forecast.service';
+
+describe('ForecastService', () => {
+  let service: ForecastService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(ForecastService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
+
+
+
+--- app/services/historical.service.ts ---
+// app/services/historical.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class HistoricalService {
+  private baseUrl = 'https://archive-api.open-meteo.com/v1/archive';
+
+  constructor(private http: HttpClient) {}
+
+  getHistoricalWeather(params: any): Observable<any> {
+    return this.http.get(this.baseUrl, { params });
+  }
+}
+
+/* rewrite this file with full api logic like this
+
+import { fetchWeatherApi } from 'openmeteo';
+	
+const params = {
+	"latitude": 51.5085,
+	"longitude": -0.1257,
+	"start_date": "2024-02-23",
+	"end_date": "2024-03-08",
+	"hourly": "temperature_2m"
+};
+const url = "https://archive-api.open-meteo.com/v1/archive";
+const responses = await fetchWeatherApi(url, params);
+
+// Helper function to form time ranges
+const range = (start: number, stop: number, step: number) =>
+	Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
+
+// Process first location. Add a for-loop for multiple locations or weather models
+const response = responses[0];
+
+// Attributes for timezone and location
+const utcOffsetSeconds = response.utcOffsetSeconds();
+const timezone = response.timezone();
+const timezoneAbbreviation = response.timezoneAbbreviation();
+const latitude = response.latitude();
+const longitude = response.longitude();
+
+const hourly = response.hourly()!;
+
+// Note: The order of weather variables in the URL query and the indices below need to match!
+const weatherData = {
+
+	hourly: {
+		time: range(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map(
+			(t) => new Date((t + utcOffsetSeconds) * 1000)
+		),
+		temperature2m: hourly.variables(0)!.valuesArray()!,
+	},
+
+};
+
+// `weatherData` now contains a simple structure with arrays for datetime and weather data
+for (let i = 0; i < weatherData.hourly.time.length; i++) {
+	console.log(
+		weatherData.hourly.time[i].toISOString(),
+		weatherData.hourly.temperature2m[i]
+	);
+}
+*/
 
 
 --- assets/.gitkeep ---
