@@ -28,12 +28,97 @@
 
 
 
---- openmeteo.ts ---
-// ## Install
+--- main.ts ---
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-// npm install openmeteo
+import { AppModule } from './app/app.module';
 
-// Usage
+platformBrowserDynamic()
+  .bootstrapModule(AppModule)
+  .catch((err) => console.error(err));
+
+
+
+--- openmeteoHistorical.ts ---
+// Install: npm install openmeteo
+// Usage:
+
+import { fetchWeatherApi } from 'openmeteo';
+	
+const params = {
+	"latitude": 51.5085,
+	"longitude": -0.1257,
+	"start_date": "2024-02-23",
+	"end_date": "2024-03-08",
+	"hourly": "temperature_2m"
+};
+const url = "https://archive-api.open-meteo.com/v1/archive";
+const responses = await fetchWeatherApi(url, params);
+
+// Helper function to form time ranges
+const range = (start: number, stop: number, step: number) =>
+	Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
+
+// Process first location. Add a for-loop for multiple locations or weather models
+const response = responses[0];
+
+// Attributes for timezone and location
+const utcOffsetSeconds = response.utcOffsetSeconds();
+const timezone = response.timezone();
+const timezoneAbbreviation = response.timezoneAbbreviation();
+const latitude = response.latitude();
+const longitude = response.longitude();
+
+const hourly = response.hourly()!;
+
+// Note: The order of weather variables in the URL query and the indices below need to match!
+const weatherData = {
+
+	hourly: {
+		time: range(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map(
+			(t) => new Date((t + utcOffsetSeconds) * 1000)
+		),
+		temperature2m: hourly.variables(0)!.valuesArray()!,
+	},
+
+};
+
+// `weatherData` now contains a simple structure with arrays for datetime and weather data
+for (let i = 0; i < weatherData.hourly.time.length; i++) {
+	console.log(
+		weatherData.hourly.time[i].toISOString(),
+		weatherData.hourly.temperature2m[i]
+	);
+}
+
+
+
+--- styles.sass ---
+.app-toolbar
+  display: flex
+  align-items: center
+  justify-content: space-between
+  .logo-container .sun-emoji
+    font-size: 24px
+    margin-right: 20px
+  .spacer
+    flex: 1
+  .tabs-container .menu-icon
+    margin-right: 16px
+    background: none
+    border: none
+    display: none
+  @media (max-width: 768px)
+    .desktop-tabs
+      display: none
+    .menu-icon
+      display: inline
+
+
+
+--- openmeteoForecast.ts ---
+// Install: npm install openmeteo
+// Usage:
 
 import { fetchWeatherApi } from 'openmeteo';
 
@@ -80,40 +165,6 @@ for (let i = 0; i < weatherData.hourly.time.length; i++) {
     weatherData.hourly.temperature2m[i]
   );
 }
-
-
-
---- main.ts ---
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-
-import { AppModule } from './app/app.module';
-
-platformBrowserDynamic()
-  .bootstrapModule(AppModule)
-  .catch((err) => console.error(err));
-
-
-
---- styles.sass ---
-.app-toolbar
-  display: flex
-  align-items: center
-  justify-content: space-between
-  .logo-container .sun-emoji
-    font-size: 24px
-    margin-right: 20px
-  .spacer
-    flex: 1
-  .tabs-container .menu-icon
-    margin-right: 16px
-    background: none
-    border: none
-    display: none
-  @media (max-width: 768px)
-    .desktop-tabs
-      display: none
-    .menu-icon
-      display: inline
 
 
 
@@ -254,6 +305,8 @@ export class AppModule {}
 
 
 --- app/weather.service.ts ---
+// app/weather.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -269,20 +322,6 @@ export class WeatherService {
   // Method for fetching forecast data
   getWeatherForecast(latitude: number, longitude: number): Observable<any> {
     const url = `${this.baseUrl}/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m,relative_humidity_2m,pressure_msl`;
-    return this.http.get(url);
-  }
-
-  // Separate method for fetching historical data with start and end dates
-  getWeatherHistoricalData(
-    latitude: number,
-    longitude: number,
-    startDate: Date,
-    endDate: Date
-  ): Observable<any> {
-    const startFormat = startDate.toISOString().split('T')[0];
-    const endFormat = endDate.toISOString().split('T')[0];
-
-    const url = `${this.baseUrl}/forecast?latitude=${latitude}&longitude=${longitude}&start=${startFormat}&end=${endFormat}&hourly=temperature_2m,relative_humidity_2m`;
     return this.http.get(url);
   }
 }
@@ -485,6 +524,8 @@ describe('WeatherTableComponent', () => {
 
 
 --- app/weather-table/weather-table.component.ts ---
+// app/weather-table/weather-table.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { WeatherService } from '../weather.service';
 
@@ -509,29 +550,15 @@ export class WeatherTableComponent implements OnInit {
     // Fetch forecast data
     this.weatherService.getWeatherForecast(lat, lon).subscribe({
       next: (forecastData) => {
-        // Fetch historical data
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setDate(endDate.getDate() - 7); // Set to 7 days ago
-
-        this.weatherService.getWeatherHistoricalData(lat, lon, startDate, endDate).subscribe({
-          next: (historicalData) => {
-            // Combine and transform forecast and historical data
-            const combinedData = [
-              ...this.transformWeatherData(forecastData),
-              ...this.transformWeatherData(historicalData)
-            ];
-            this.weatherData = combinedData.sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
-          },
-          error: (error) => console.error('Error fetching historical data:', error)
-        });
+        // Transform forecast data
+        this.weatherData = this.transformWeatherData(forecastData);
       },
       error: (error) => console.error('Error fetching forecast data:', error)
     });
   }
 
   transformWeatherData(data: any): any[] {
-    // Assumes potentially common formatting logic between historical and forecast data
+    // Transforming forecast data
     return data.hourly.time.map((time: string, index: number) => ({
       datetime: new Date(time).toLocaleString(),
       temperature: data.hourly.temperature_2m[index],
@@ -540,6 +567,7 @@ export class WeatherTableComponent implements OnInit {
     }));
   }
 }
+
 
 
 --- app/temperature-chart/temperature-chart.component.sass ---
@@ -551,6 +579,8 @@ export class WeatherTableComponent implements OnInit {
 
 
 --- app/temperature-chart/temperature-chart.component.ts ---
+// app/temperature-chart/temperature-chart.component.ts
+
 import { Component, OnInit, HostListener } from '@angular/core';
 import { WeatherService } from '../weather.service';
 
@@ -592,15 +622,11 @@ export class TemperatureChartComponent implements OnInit {
   fetchTemperatureData(): void {
     const lat = 51.5074; // Latitude for London
     const lon = -0.1278; // Longitude for London
-    const currentDate = new Date();
-    const endDate = currentDate.toISOString().split('T')[0]; // Format the current date as YYYY-MM-DD
-    const pastDate = new Date(currentDate.setDate(currentDate.getDate() - 7)).toISOString().split('T')[0]; // Get the date 7 days ago
 
-    this.weatherService.getWeatherHistoricalData(lat, lon, new Date(pastDate), new Date(endDate)).subscribe({
+    this.weatherService.getWeatherForecast(lat, lon).subscribe({
       next: (data) => {
-        let temperatures = data.hourly.temperature_2m;
-        let times = data.hourly.time;
-        this.temperatureData = this.transformDataForChart(times, temperatures);
+        // Transform data for chart
+        this.temperatureData = this.transformDataForChart(data);
       },
       error: (error) => {
         console.error('Error fetching temperature data:', error);
@@ -608,12 +634,13 @@ export class TemperatureChartComponent implements OnInit {
     });
   }
 
-  transformDataForChart(times: string[], temperatures: number[]): any[] {
+  transformDataForChart(data: any): any[] {
+    // Transform forecast data for chart
     let chartData = [];
-    for (let i = 0; i < times.length; i++) {
+    for (let i = 0; i < data.hourly.time.length; i++) {
       chartData.push({
-        name: new Date(times[i]).toLocaleString(),
-        value: temperatures[i]
+        name: new Date(data.hourly.time[i]).toLocaleString(),
+        value: data.hourly.temperature_2m[i]
       });
     }
     return [{ name: 'Temperature', series: chartData }];
