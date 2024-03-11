@@ -14,18 +14,38 @@ interface WeatherData {
 })
 export class WeatherTableComponent implements OnInit {
   weatherData: WeatherData[] = [];
-  displayedColumns: string[] = ['datetime', 'temperature', 'humidity', 'pressure'];
+  displayedColumns: string[] = [
+    'datetime',
+    'temperature',
+    'humidity',
+    'pressure',
+  ];
 
   constructor(private forecastService: ForecastService) {}
 
   ngOnInit(): void {
-    this.forecastService.getWeatherForecast().subscribe(data => {
-      this.weatherData = data.hourly.time.map((time: string, index: number) => ({
-        datetime: new Date(time).toLocaleString(),
-        temperature: data.hourly.temperature_2m[index],
-        humidity: data.hourly.relative_humidity_2m[index],
-        pressure: data.hourly.pressure_msl[index],
-      }));
+    this.forecastService.getWeatherForecast().subscribe((data) => {
+      this.weatherData = data.hourly.time.map((time: string, index: number) => {
+        const date = new Date(time);
+
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // +1 because getMonth() returns 0-11
+        const year = date.getFullYear().toString();
+        const formattedDate = `${day}.${month}.${year}`;
+
+        const formattedTime = date.toLocaleTimeString('it-IT', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        });
+
+        return {
+          datetime: `${formattedDate}, ${formattedTime}`,
+          temperature: data.hourly.temperature_2m[index],
+          humidity: data.hourly.relative_humidity_2m[index],
+          pressure: data.hourly.pressure_msl[index],
+        };
+      });
     });
   }
 }
