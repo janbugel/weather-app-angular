@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { TemperatureChartComponent } from './temperature-chart/temperature-chart.component';
 
 const routes: Routes = [
-  { path: 'temperature-chart', component: TemperatureChartComponent }, // Make sure this path is correct
+  { path: 'temperature-chart', component: TemperatureChartComponent },
 ];
 
 @NgModule({
