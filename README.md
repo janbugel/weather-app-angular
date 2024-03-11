@@ -4,9 +4,9 @@ https://janbugel.github.io/weather-app-angular/
 
 ## Configuration 
 
-- [x] ng new <project_name>
-- [x] ng add @angular/material
-- [x] ng generate component <component_name>
+- ng new <project_name>
+- ng add @angular/material
+- ng generate component <component_name>
 
 ## Features to Implement
 
@@ -16,4 +16,13 @@ https://janbugel.github.io/weather-app-angular/
 - [x] Create a graph to display temperature over time
 - [x] Display past weather and forecast table
 - [x] Calculate Feel Temperature (heat index)
+- [ ] Improve calculator
+- [ ] Clean code - simplify the codebase
+- [ ] Standalone components
+
+## deployment
+
+- ng build --output-path docs --base-href /weather-app-angular/
+- copy index.html a and name it 404.html
+- extract files from /docs/browser into /docs because idk why angular does this (SSR related - https://github.com/angular/angular-cli/issues/26304) 
 
