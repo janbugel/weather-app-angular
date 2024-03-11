@@ -1,13 +1,7 @@
-<!-- Add #chartContainer reference -->
-<div
-  #chartContainer
-  *ngIf="temperatureData && temperatureData.length > 0"
-  class="temperature-chart-container"
->
+<div class="temperature-chart-container" *ngIf="chartData && chartData.length">
   <ngx-charts-line-chart
-    [view]="view"
     [scheme]="colorScheme"
-    [results]="temperatureData"
+    [results]="chartData"
     [gradient]="gradient"
     [xAxis]="showXAxis"
     [yAxis]="showYAxis"
@@ -15,8 +9,6 @@
     [showXAxisLabel]="showXAxisLabel"
     [showYAxisLabel]="showYAxisLabel"
     [xAxisLabel]="xAxisLabel"
-    [yAxisLabel]="yAxisLabel"
-    [timeline]="timeline"
-  >
+    [yAxisLabel]="yAxisLabel">
   </ngx-charts-line-chart>
 </div>
