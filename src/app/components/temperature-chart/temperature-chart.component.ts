@@ -1,7 +1,5 @@
-// app/temperature-chart/temperature-chart.component.ts
-
 import { Component, OnInit, HostListener } from '@angular/core';
-import { ForecastService } from '../services/forecast.service'; // Updated import statement
+import { ForecastService } from '../../services/forecast.service';
 
 @Component({
   selector: 'app-temperature-chart',
@@ -20,9 +18,9 @@ export class TemperatureChartComponent implements OnInit {
   public showYAxisLabel = true;
   public yAxisLabel = 'Temperature (°C)';
   public timeline = true;
-  public colorScheme = 'vivid'; // Use predefined color schemes like 'vivid', 'natural', etc.
+  public colorScheme = 'vivid'; // 'cool', 'vivid', 'natural' ...
 
-  constructor(private forecastService: ForecastService) {} // Updated service injection
+  constructor(private forecastService: ForecastService) {}
 
   ngOnInit(): void {
     this.updateChartDimensions();
@@ -35,16 +33,15 @@ export class TemperatureChartComponent implements OnInit {
   }
 
   updateChartDimensions(): void {
-    this.view = [innerWidth / 1.2, 400]; // Dynamically adjusts the chart dimensions based on the window width
+    this.view = [innerWidth / 1.2, 400];
   }
 
   fetchTemperatureData(): void {
-    const lat = 51.5074; // Latitude for London
-    const lon = -0.1278; // Longitude for London
+    const lat = 51.5074;
+    const lon = -0.1278;
 
     this.forecastService.getWeatherForecast().subscribe({
       next: (data) => {
-        // Transform data for chart
         this.temperatureData = this.transformDataForChart(data);
       },
       error: (error) => {
@@ -54,7 +51,6 @@ export class TemperatureChartComponent implements OnInit {
   }
 
   transformDataForChart(data: any): any[] {
-    // Transform forecast data for chart
     let chartData = [];
     for (let i = 0; i < data.hourly.time.length; i++) {
       chartData.push({

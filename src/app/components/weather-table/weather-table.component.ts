@@ -1,6 +1,5 @@
-// weather-table.component.ts
 import { Component, OnInit } from '@angular/core';
-import { ForecastService } from '../services/forecast.service';
+import { ForecastService } from '../../services/forecast.service';
 
 interface WeatherData {
   datetime: string;

@@ -6,10 +6,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TabsComponent } from './tabs/tabs.component';
-import { WeatherTableComponent } from './weather-table/weather-table.component';
-import { TemperatureChartComponent } from './temperature-chart/temperature-chart.component';
-import { HeatIndexCalculatorComponent } from './heat-index-calculator/heat-index-calculator.component';
+import { TabsComponent } from './components/tabs/tabs.component';
+import { WeatherTableComponent } from './components/weather-table/weather-table.component';
+import { TemperatureChartComponent } from './components/temperature-chart/temperature-chart.component';
+import { HeatIndexCalculatorComponent } from './components/heat-index-calculator/heat-index-calculator.component';
 
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
