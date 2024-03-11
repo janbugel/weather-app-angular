@@ -1,5 +1,485 @@
 
---- heat-index-calculator.component.sass ---
+--- app.component.html ---
+<div class="app-header">
+  <div class="tabs-container">
+    <mat-tab-group class="desktop-tabs">
+      <mat-tab label="Weather Table">
+        <app-weather-table></app-weather-table>
+      </mat-tab>
+      <mat-tab label="Temperature Chart">
+        <app-temperature-chart></app-temperature-chart>
+      </mat-tab>
+      <mat-tab label="Heat Index Calculator">
+        <app-heat-index-calculator></app-heat-index-calculator>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
+<router-outlet></router-outlet>
+
+
+
+--- app-routing.module.ts ---
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { TemperatureChartComponent } from './components/temperature-chart/temperature-chart.component';
+
+const routes: Routes = [
+  { path: 'temperature-chart', component: TemperatureChartComponent },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
+
+
+
+--- app.component.spec.ts ---
+import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AppComponent } from './app.component';
+
+describe('AppComponent', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [RouterTestingModule],
+      declarations: [AppComponent],
+    }).compileComponents();
+  });
+
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+  it(`should have as title 'weather-app-angular'`, () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app.title).toEqual('weather-app-angular');
+  });
+
+  it('should render title', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain(
+      'Hello, weather-app-angular'
+    );
+  });
+});
+
+
+
+--- app.module.ts ---
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { TabsComponent } from './components/tabs/tabs.component';
+import { WeatherTableComponent } from './components/weather-table/weather-table.component';
+import { TemperatureChartComponent } from './components/temperature-chart/temperature-chart.component';
+import { HeatIndexCalculatorComponent } from './components/heat-index-calculator/heat-index-calculator.component';
+
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    TabsComponent,
+    WeatherTableComponent,
+    TemperatureChartComponent,
+    HeatIndexCalculatorComponent,
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatGridListModule,
+    MatIconModule,
+    MatToolbarModule,
+    MatTabsModule,
+    NgxChartsModule,
+  ],
+  providers: [
+    provideAnimationsAsync()
+  ],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
+
+
+
+--- app.component.ts ---
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.sass'],
+})
+export class AppComponent {
+  title(title: any) {
+    throw new Error('Method not implemented.');
+  }
+}
+
+
+
+--- app.component.sass ---
+.app-container
+  display: flex
+  flex-direction: column
+  align-items: center
+  padding: 20px
+
+h1
+  color: #1976d2
+  margin-bottom: 20px
+
+
+
+--- components/tabs/tabs.component.html ---
+<mat-tab-group>
+  <mat-tab label="Temperature Chart">
+    <app-temperature-chart></app-temperature-chart>
+  </mat-tab>
+</mat-tab-group>
+
+
+
+--- components/tabs/tabs.component.spec.ts ---
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { TabsComponent } from './tabs.component';
+
+describe('TabsComponent', () => {
+  let component: TabsComponent;
+  let fixture: ComponentFixture<TabsComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [TabsComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TabsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+
+--- components/tabs/tabs.component.ts ---
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-tabs',
+  templateUrl: './tabs.component.html',
+  styleUrls: ['./tabs.component.sass'],
+})
+export class TabsComponent {
+  activeTab: any;
+  constructor() {}
+}
+
+
+
+--- components/tabs/tabs.component.sass ---
+
+
+
+--- components/weather-table/weather-table.component.spec.ts ---
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { WeatherTableComponent } from './weather-table.component';
+
+describe('WeatherTableComponent', () => {
+  let component: WeatherTableComponent;
+  let fixture: ComponentFixture<WeatherTableComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [WeatherTableComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(WeatherTableComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+
+--- components/weather-table/weather-table.component.html ---
+<!-- app/weather-table/weather-table.component.html -->
+<table mat-table [dataSource]="weatherData" class="mat-elevation-z8">
+  <!-- Datetime Column -->
+  <ng-container matColumnDef="datetime">
+    <th mat-header-cell *matHeaderCellDef>Date Time</th>
+    <td mat-cell *matCellDef="let weather">{{ weather.datetime }}</td>
+  </ng-container>
+
+  <!-- Temperature Column -->
+  <ng-container matColumnDef="temperature">
+    <th mat-header-cell *matHeaderCellDef>Temperature (°C)</th>
+    <td mat-cell *matCellDef="let weather">{{ weather.temperature }}</td>
+  </ng-container>
+
+  <!-- Humidity Column -->
+  <ng-container matColumnDef="humidity">
+    <th mat-header-cell *matHeaderCellDef>Humidity (%)</th>
+    <td mat-cell *matCellDef="let weather">{{ weather.humidity }}</td>
+  </ng-container>
+
+  <!-- Pressure Column -->
+  <ng-container matColumnDef="pressure">
+    <th mat-header-cell *matHeaderCellDef>Pressure (hPa)</th>
+    <td mat-cell *matCellDef="let weather">{{ weather.pressure }}</td>
+  </ng-container>
+
+  <!-- Table Rows -->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>
+
+
+
+--- components/weather-table/weather-table.component.sass ---
+.weather-table
+  max-width: 100%
+  margin: auto
+  border-collapse: collapse
+  thead
+    background-color: #1976d2
+    color: white
+    th
+      padding: 10px
+      text-align: left
+  tbody tr:nth-child(even)
+    background-color: #f2f2f2
+  td, th
+    padding: 8px
+    border: 1px solid #ddd
+
+.weather-table td
+  text-align: center
+  text-align: center
+  font-size: 16px
+
+// aling text on h2 title in the center
+.title
+  text-align: center
+  padding: 10px
+  margin: 10px
+  font-size: 20px
+  font-weight: bold
+  // blue color
+  color: #1976d2
+
+
+--- components/weather-table/weather-table.component.ts ---
+import { Component, OnInit } from '@angular/core';
+import { ForecastService } from '../../services/forecast.service';
+
+interface WeatherData {
+  datetime: string;
+  temperature: number;
+  humidity: number;
+  pressure: number | string;
+}
+
+@Component({
+  selector: 'app-weather-table',
+  templateUrl: './weather-table.component.html',
+})
+export class WeatherTableComponent implements OnInit {
+  weatherData: WeatherData[] = [];
+  displayedColumns: string[] = ['datetime', 'temperature', 'humidity', 'pressure'];
+
+  constructor(private forecastService: ForecastService) {}
+
+  ngOnInit(): void {
+    this.forecastService.getWeatherForecast().subscribe(data => {
+      this.weatherData = data.hourly.time.map((time: string, index: number) => ({
+        datetime: new Date(time).toLocaleString(),
+        temperature: data.hourly.temperature_2m[index],
+        humidity: data.hourly.relative_humidity_2m[index],
+        pressure: data.hourly.pressure_msl[index],
+      }));
+    });
+  }
+}
+
+
+
+--- components/temperature-chart/temperature-chart.component.sass ---
+.temperature-chart-container
+  display: block
+  overflow-x: hidden
+  padding: 20px
+
+
+
+--- components/temperature-chart/temperature-chart.component.ts ---
+import { Component, OnInit, HostListener } from '@angular/core';
+import { ForecastService } from '../../services/forecast.service';
+
+@Component({
+  selector: 'app-temperature-chart',
+  templateUrl: './temperature-chart.component.html',
+  styleUrls: ['./temperature-chart.component.sass'],
+})
+export class TemperatureChartComponent implements OnInit {
+  public temperatureData: any[] = [];
+  public view: any = [innerWidth / 1.2, 400];
+  public showXAxis = true;
+  public showYAxis = true;
+  public gradient = false;
+  public showLegend = false;
+  public showXAxisLabel = true;
+  public xAxisLabel = 'Time';
+  public showYAxisLabel = true;
+  public yAxisLabel = 'Temperature (°C)';
+  public timeline = true;
+  public colorScheme = 'vivid'; // 'cool', 'vivid', 'natural' ...
+
+  constructor(private forecastService: ForecastService) {}
+
+  ngOnInit(): void {
+    this.updateChartDimensions();
+    this.fetchTemperatureData();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.updateChartDimensions();
+  }
+
+  updateChartDimensions(): void {
+    this.view = [innerWidth / 1.2, 400];
+  }
+
+  fetchTemperatureData(): void {
+    const lat = 51.5074;
+    const lon = -0.1278;
+
+    this.forecastService.getWeatherForecast().subscribe({
+      next: (data) => {
+        this.temperatureData = this.transformDataForChart(data);
+      },
+      error: (error) => {
+        console.error('Error fetching temperature data:', error);
+      },
+    });
+  }
+
+  transformDataForChart(data: any): any[] {
+    let chartData = [];
+    for (let i = 0; i < data.hourly.time.length; i++) {
+      chartData.push({
+        name: new Date(data.hourly.time[i]).toLocaleString(),
+        value: data.hourly.temperature_2m[i],
+      });
+    }
+    return [{ name: 'Temperature', series: chartData }];
+  }
+}
+
+
+
+--- components/temperature-chart/temperature-chart.component.html ---
+<!-- Add #chartContainer reference -->
+<div
+  #chartContainer
+  *ngIf="temperatureData && temperatureData.length > 0"
+  class="temperature-chart-container"
+>
+  <ngx-charts-line-chart
+    [view]="view"
+    [scheme]="colorScheme"
+    [results]="temperatureData"
+    [gradient]="gradient"
+    [xAxis]="showXAxis"
+    [yAxis]="showYAxis"
+    [legend]="showLegend"
+    [showXAxisLabel]="showXAxisLabel"
+    [showYAxisLabel]="showYAxisLabel"
+    [xAxisLabel]="xAxisLabel"
+    [yAxisLabel]="yAxisLabel"
+    [timeline]="timeline"
+  >
+  </ngx-charts-line-chart>
+</div>
+
+
+
+--- components/temperature-chart/temperature-chart.component.spec.ts ---
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { TemperatureChartComponent } from './temperature-chart.component';
+
+describe('TemperatureChartComponent', () => {
+  let component: TemperatureChartComponent;
+  let fixture: ComponentFixture<TemperatureChartComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [TemperatureChartComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TemperatureChartComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+
+
+
+--- components/heat-index-calculator/heat-index-calculator.component.sass ---
 .heat-index-calculator-container
   display: flex
   justify-content: center
@@ -15,8 +495,16 @@
   text-align: center
   font-weight: bold
 
+.warning-message-container
+  margin-top: 20px
+  text-align: center
 
---- heat-index-calculator.component.ts ---
+.warning-message
+  color: red
+
+
+
+--- components/heat-index-calculator/heat-index-calculator.component.ts ---
 import { Component } from '@angular/core';
 
 @Component({
@@ -38,7 +526,8 @@ export class HeatIndexCalculatorComponent {
     if (this.temperature !== null && this.humidity !== null) {
       if (this.temperatureUnit === 'F') {
         if (this.temperature < 80) {
-          this.message = "Heat Index value cannot be calculated for temperatures below 80°F.";
+          this.message =
+            'Heat Index value cannot be calculated for temperatures below 80°F.';
         } else {
           this.heatIndex = this.calculateHeatIndexFahrenheit(
             this.temperature,
@@ -47,10 +536,13 @@ export class HeatIndexCalculatorComponent {
         }
       } else {
         if (this.temperature < 26.7) {
-          this.message = "Heat Index value cannot be calculated for temperatures below 26.7°C.";
+          this.message =
+            'Heat Index value cannot be calculated for temperatures below 26.7°C.';
         } else {
           // Convert Celsius to Fahrenheit for calculation
-          const tempInFahrenheit = this.convertCelsiusToFahrenheit(this.temperature);
+          const tempInFahrenheit = this.convertCelsiusToFahrenheit(
+            this.temperature
+          );
           this.heatIndex = this.convertFahrenheitToCelsius(
             this.calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity)
           );
@@ -84,7 +576,7 @@ export class HeatIndexCalculatorComponent {
 
 
 
---- heat-index-calculator.component.html ---
+--- components/heat-index-calculator/heat-index-calculator.component.html ---
 <div class="heat-index-calculator-container">
   <mat-card class="heat-index-card">
     <mat-card-header></mat-card-header>
@@ -92,7 +584,13 @@ export class HeatIndexCalculatorComponent {
       <form (ngSubmit)="calculateHeatIndex()" class="form-style">
         <mat-form-field appearance="fill">
           <mat-label>Temperature</mat-label>
-          <input matInput type="number" [(ngModel)]="temperature" name="temperature" required />
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="temperature"
+            name="temperature"
+            required
+          />
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Temperature Unit</mat-label>
@@ -103,24 +601,35 @@ export class HeatIndexCalculatorComponent {
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Relative Humidity (%)</mat-label>
-          <input matInput type="number" [(ngModel)]="humidity" name="humidity" required />
+          <input
+            matInput
+            type="number"
+            [(ngModel)]="humidity"
+            name="humidity"
+            required
+          />
         </mat-form-field>
-        <button mat-raised-button color="primary" type="submit">Calculate</button>
+        <button mat-raised-button color="primary" type="submit">
+          Calculate
+        </button>
       </form>
     </mat-card-content>
     <mat-card-actions *ngIf="heatIndex !== null">
-      <p class="heat-index-result">Heat Index: {{ heatIndex | number : '1.0-1' }} {{ temperatureUnit }}</p>
+      <p class="heat-index-result">
+        Heat Index: {{ heatIndex | number : "1.0-1" }} {{ temperatureUnit }}
+      </p>
     </mat-card-actions>
   </mat-card>
 </div>
-<!-- Separate warning message from the card component -->
+
+<!-- Warning message container below the calculator -->
 <div *ngIf="message" class="warning-message-container">
   <p class="warning-message">{{ message }}</p>
 </div>
 
 
 
---- heat-index-calculator.component.spec.ts ---
+--- components/heat-index-calculator/heat-index-calculator.component.spec.ts ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HeatIndexCalculatorComponent } from './heat-index-calculator.component';
@@ -141,6 +650,52 @@ describe('HeatIndexCalculatorComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+});
+
+
+
+--- services/forecast.service.ts ---
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ForecastService {
+  private baseUrl = 'https://api.open-meteo.com/v1/forecast';
+
+  constructor(private http: HttpClient) {}
+
+  getWeatherForecast(): Observable<any> {
+    const params = {
+      latitude: 51.5074, // London's latitude
+      longitude: -0.1278, // London's longitude
+      hourly: 'temperature_2m,relative_humidity_2m,pressure_msl',
+      past_days: 7
+    };
+    return this.http.get(this.baseUrl, { params });
+  }
+}
+
+
+
+--- services/forecast.service.spec.ts ---
+import { TestBed } from '@angular/core/testing';
+
+import { ForecastService } from './forecast.service';
+
+describe('ForecastService', () => {
+  let service: ForecastService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(ForecastService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
   });
 });
 
