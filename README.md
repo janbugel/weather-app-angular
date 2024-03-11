@@ -1,3 +1,6 @@
+## Demo
+
+https://janbugel.github.io/weather-app-angular/
 
 ## Configuration 
 
