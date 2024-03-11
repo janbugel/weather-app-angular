@@ -42,7 +42,7 @@ export class TemperatureChartComponent implements OnInit {
     const lat = 51.5074; // Latitude for London
     const lon = -0.1278; // Longitude for London
 
-    this.forecastService.getWeatherForecast(lat, lon).subscribe({
+    this.forecastService.getWeatherForecast().subscribe({
       next: (data) => {
         // Transform data for chart
         this.temperatureData = this.transformDataForChart(data);
