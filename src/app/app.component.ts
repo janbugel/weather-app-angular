@@ -6,7 +6,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.sass'],
 })
 export class AppComponent {
-  title(title: any) {
-    throw new Error('Method not implemented.');
+  selectedPastDays: number = 7;
+  updatePastDays(pastDays: number): void {
+    this.selectedPastDays = pastDays;
   }
 }

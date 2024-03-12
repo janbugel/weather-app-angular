@@ -1,5 +1,14 @@
-<!-- app/weather-table/weather-table.component.html -->
 <div class="weather-table-container">
+  <div class="past-days-selector">
+    <mat-form-field appearance="fill">
+      <mat-label>Past Days</mat-label>
+      <input matInput type="number" [(ngModel)]="pastDays" (ngModelChange)="updatePastDays()" min="1" max="92" name="pastDays">
+    </mat-form-field>
+  </div>
+  <!-- Display warning message if pastDays is more than 92 -->
+  <div *ngIf="pastDays > 92" class="warning-message">
+    Forecast API only stores 92 days of past data.
+  </div>
   <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
 
     <!-- Datetime Column -->

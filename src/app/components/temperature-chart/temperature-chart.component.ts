@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, SimpleChanges, OnChanges } from '@angular/core';
 import { ForecastService } from '../../services/forecast.service';
 
 @Component({
   selector: 'app-temperature-chart',
   templateUrl: './temperature-chart.component.html',
   styleUrls: ['./temperature-chart.component.sass'],
+  inputs: ['pastDays'] 
 })
-export class TemperatureChartComponent implements OnInit {
+export class TemperatureChartComponent implements OnInit, OnChanges {
+  @Input() pastDays: number = 7; 
   chartData: any[] = [];
 
   showXAxis = true;
@@ -22,7 +24,17 @@ export class TemperatureChartComponent implements OnInit {
   constructor(private forecastService: ForecastService) {}
 
   ngOnInit(): void {
-    this.forecastService.getWeatherForecast().subscribe(data => {
+    this.loadChartData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['pastDays']) {
+      this.loadChartData();
+    }
+  }
+
+  private loadChartData(): void {
+    this.forecastService.getWeatherForecast(this.pastDays).subscribe(data => {
       this.chartData = [
         {
           name: 'Temperature',

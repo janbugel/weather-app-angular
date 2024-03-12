@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, Output, EventEmitter } from '@angular/core';
 import { ForecastService } from '../../services/forecast.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -15,18 +15,42 @@ interface WeatherData {
 @Component({
   selector: 'app-weather-table',
   templateUrl: './weather-table.component.html',
+  styleUrls: ['./weather-table.component.sass']
 })
 export class WeatherTableComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['datetime', 'weatherState', 'temperature', 'humidity', 'pressure'];
   dataSource = new MatTableDataSource<WeatherData>();
+  pastDays = 7; // Default value for past days
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  @Output() pastDaysChanged = new EventEmitter<number>();
 
   constructor(private forecastService: ForecastService) {}
 
   ngOnInit(): void {
-    this.forecastService.getWeatherForecast().subscribe((data) => {
+    this.loadWeatherData();
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  updatePastDays(): void {
+    if (this.pastDays > 92) {
+      // Do nothing if pastDays is more than 92
+      return;
+    }
+
+    if (this.pastDays >= 1) {
+      this.loadWeatherData();
+      this.pastDaysChanged.emit(this.pastDays);
+    }
+  }
+
+  private loadWeatherData(): void {
+    this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
       this.dataSource.data = data.hourly.time.map((time: string, index: number) => {
         const date = new Date(time);
         const day = date.getDate().toString().padStart(2, '0');
@@ -47,12 +71,9 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
           weatherState: this.mapWeatherCodeToState(data.hourly.weather_code[index]),
         };
       });
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
     });
-  }
-
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
   }
 
   private mapWeatherCodeToState(code: number): string {
@@ -66,8 +87,8 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
       case 51: return 'Light drizzle';
       case 53: return 'Moderate drizzle';
       case 55: return 'Dense drizzle';
-      case 56: return 'Light freezing Drizzle';
-      case 57: return 'Dense freezing Drizzle';
+      case 56: return 'Light freezing drizzle';
+      case 57: return 'Dense freezing drizzle';
       case 61: return 'Slight rain';
       case 63: return 'Moderate rain';
       case 65: return 'Heavy rain';
@@ -76,7 +97,7 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
       case 71: return 'Slight snow fall';
       case 73: return 'Moderate snow fall';
       case 75: return 'Heavy snow fall';
-      case 77: return 'Snow Grains';
+      case 77: return 'Snow grains';
       case 80: return 'Slight rain showers';
       case 81: return 'Moderate rain showers';
       case 82: return 'Heavy rain showers';
