@@ -12,10 +12,10 @@ https://janbugel.github.io/weather-app-angular/
 
 - [x] Integrate Open Weather API
 - [x] Design UI using Angular Material components
-- [ ] Implement functionality to switch between Fahrenheit and Celsius
 - [x] Create a graph to display temperature over time
 - [x] Display past weather and forecast table
 - [x] Calculate Feel Temperature (heat index)
+- [x] weather code display on weather table from api accoriding to WMO Weather interpretation codes (WW) 
 - [ ] Improve calculator
 - [ ] Clean code - simplify the codebase
 - [ ] Standalone components
