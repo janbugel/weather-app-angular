@@ -2,61 +2,32 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { WeatherTableComponent } from './components/weather-table/weather-table.component';
-import { TemperatureChartComponent } from './components/temperature-chart/temperature-chart.component';
-import { HeatIndexCalculatorComponent } from './components/heat-index-calculator/heat-index-calculator.component';
-
-import { NgxChartsModule } from '@swimlane/ngx-charts';
-
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTabsModule } from '@angular/material/tabs';
+import { WeatherTableModule } from './components/weather-table/weather-table.module'; 
+import { TemperatureChartModule } from './components/temperature-chart/temperature-chart.module'; 
+import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module'; 
 
 @NgModule({
   declarations: [
     AppComponent,
-    WeatherTableComponent,
-    TemperatureChartComponent,
-    HeatIndexCalculatorComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCardModule,
-    MatGridListModule,
-    MatIconModule,
     MatToolbarModule,
+    MatButtonModule,
     MatTabsModule,
-    NgxChartsModule,
+    WeatherTableModule, 
+    TemperatureChartModule, 
+    HeatIndexCalculatorModule, 
   ],
-  providers: [
-    provideAnimationsAsync()
-  ],
-  bootstrap: [AppComponent],
+  providers: [],
+  bootstrap: [AppComponent]
 })
 export class AppModule {}

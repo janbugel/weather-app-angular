@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table'; // Add this import
 
 @Component({
   selector: 'app-heat-index-calculator',
@@ -11,7 +12,7 @@ export class HeatIndexCalculatorComponent {
   temperatureUnit: 'C' | 'F' = 'C';
   heatIndex: number | null = null;
   message: string | null = null;
-  history: { temperature: number; humidity: number; heatIndex: number; unit: string; }[] = [];
+  history = new MatTableDataSource<{ temperature: number; humidity: number; heatIndex: number; unit: string; }>([]); // Change type to MatTableDataSource
 
   constructor() {
     this.loadHistory();
@@ -72,21 +73,22 @@ export class HeatIndexCalculatorComponent {
 
   private addToHistory(): void {
     if (this.heatIndex !== null) {
-      this.history.unshift({
+      const newHistory = this.history.data;
+      newHistory.unshift({
         temperature: this.temperature!,
         humidity: this.humidity!,
         heatIndex: this.heatIndex,
         unit: this.temperatureUnit,
       });
-      this.history = this.history.slice(0, 5); // Keep only the last 5 entries
-      localStorage.setItem('heatIndexHistory', JSON.stringify(this.history));
+      this.history.data = newHistory.slice(0, 5); // Keep only the last 5 entries
+      localStorage.setItem('heatIndexHistory', JSON.stringify(this.history.data));
     }
   }
 
   private loadHistory(): void {
     const history = localStorage.getItem('heatIndexHistory');
     if (history) {
-      this.history = JSON.parse(history);
+      this.history.data = JSON.parse(history);
     }
   }
 }
