@@ -10,14 +10,14 @@ https://janbugel.github.io/weather-app-angular/
 
 ## Features to Implement
 
-- [x] Integrate Open Weather API
 - [x] Design UI using Angular Material components
+- [x] Integrate Open Weather API
 - [x] Create a graph to display temperature over time
 - [x] Display past weather and forecast table
 - [x] Calculate Feel Temperature (heat index)
 - [x] weather code display on weather table from api accoriding to WMO Weather interpretation codes (WW) 
 - [ ] Improve calculator
-- [ ] Clean code - simplify the codebase
+- [ ] Clean code - refactor - split features into separate compoents/services 
 - [ ] Standalone components
 
 ## deployment
