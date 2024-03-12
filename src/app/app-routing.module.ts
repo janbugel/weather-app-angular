@@ -15,7 +15,6 @@ const routes: Routes = [
     path: 'heat-index-calculator', 
     loadChildren: () => import('./components/heat-index-calculator/heat-index-calculator.module').then(m => m.HeatIndexCalculatorModule) 
   },
-  { path: '', redirectTo: '/weather-table', pathMatch: 'full' },
 ];
 
 @NgModule({
