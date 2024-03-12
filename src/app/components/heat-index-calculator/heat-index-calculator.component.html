@@ -22,6 +22,10 @@
         </mat-form-field>
         <button mat-raised-button color="primary" type="submit">Calculate</button>
       </form>
+      <!-- Error Message Display -->
+      <div *ngIf="message" class="warning-message-container">
+        <p class="warning-message">{{ message }}</p>
+      </div>
     </mat-card-content>
     <mat-card-actions *ngIf="heatIndex !== null">
       <p class="heat-index-result">
