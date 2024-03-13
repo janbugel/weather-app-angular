@@ -5,10 +5,10 @@ import { ForecastService } from '../../services/forecast.service';
   selector: 'app-temperature-chart',
   templateUrl: './temperature-chart.component.html',
   styleUrls: ['./temperature-chart.component.sass'],
-  inputs: ['pastDays'] 
 })
 export class TemperatureChartComponent implements OnInit, OnChanges {
-  @Input() pastDays: number = 7; 
+  // Initialize pastDays with value from localStorage, or default to 7 if not present
+  @Input() pastDays: number = parseInt(localStorage.getItem('pastDays') || '7'); 
   chartData: any[] = [];
 
   showXAxis = true;

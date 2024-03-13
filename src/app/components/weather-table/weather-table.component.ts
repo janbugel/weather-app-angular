@@ -20,7 +20,9 @@ interface WeatherData {
 export class WeatherTableComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['datetime', 'weatherState', 'temperature', 'humidity', 'pressure'];
   dataSource = new MatTableDataSource<WeatherData>();
-  pastDays = 7; // Default value for past days
+
+  // Initialize pastDays with a value from localStorage or default to 7
+  pastDays = parseInt(localStorage.getItem('pastDays') || '7');
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -46,6 +48,7 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
     if (this.pastDays >= 1) {
       this.loadWeatherData();
       this.pastDaysChanged.emit(this.pastDays);
+      localStorage.setItem('pastDays', this.pastDays.toString());
     }
   }
 
