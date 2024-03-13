@@ -6,6 +6,7 @@ https://janbugel.github.io/weather-app-angular/
 
 - ng new <project_name>
 - ng add @angular/material
+- npm install chart.js
 - ng generate component <component_name>
 
 ## Features to Implement

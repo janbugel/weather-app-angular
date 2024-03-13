@@ -1,49 +1,68 @@
-import { Component, OnInit, Input, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { Chart, registerables, ChartConfiguration, ChartEvent } from 'chart.js';
 import { ForecastService } from '../../services/forecast.service';
 
 @Component({
   selector: 'app-temperature-chart',
   templateUrl: './temperature-chart.component.html',
-  styleUrls: ['./temperature-chart.component.sass'],
+  styleUrls: ['./temperature-chart.component.sass']
 })
-export class TemperatureChartComponent implements OnInit, OnChanges {
-  // Initialize pastDays with value from localStorage, or default to 7 if not present
-  @Input() pastDays: number = parseInt(localStorage.getItem('pastDays') || '7'); 
-  chartData: any[] = [];
+export class TemperatureChartComponent implements AfterViewInit {
+  @ViewChild('temperatureChart') temperatureChart: any;
+  private pastDays: number;
 
-  showXAxis = true;
-  showYAxis = true;
-  gradient = false;
-  showLegend = false;
-  showXAxisLabel = true;
-  xAxisLabel = 'Time';
-  showYAxisLabel = true;
-  yAxisLabel = 'Temperature (°C)';
-  colorScheme = 'vivid';
-
-  constructor(private forecastService: ForecastService) {}
-
-  ngOnInit(): void {
-    this.loadChartData();
+  constructor(private forecastService: ForecastService) {
+    Chart.register(...registerables);
+    this.pastDays = parseInt(localStorage.getItem('pastDays') || '7');
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['pastDays']) {
-      this.loadChartData();
-    }
+  ngAfterViewInit(): void {
+    this.loadChart();
   }
 
-  private loadChartData(): void {
+  private loadChart(): void {
     this.forecastService.getWeatherForecast(this.pastDays).subscribe(data => {
-      this.chartData = [
-        {
-          name: 'Temperature',
-          series: data.hourly.time.map((time: string, index: number) => ({
-            name: new Date(time).toLocaleString(),
-            value: data.hourly.temperature_2m[index]
-          }))
+      const labels = data.hourly.time.map((datetime: string) => {
+        const date = new Date(datetime);
+        return `${date.getDate()}/${date.getMonth() + 1} ${date.getHours()}:00`;
+      });
+
+      const temperatures = data.hourly.temperature_2m;
+
+      const config: ChartConfiguration<'line'> = {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Temperature (°C)',
+            backgroundColor: 'rgb(96, 111, 199)',
+            borderColor: 'rgb(96, 111, 199)',
+            data: temperatures,
+            fill: false,
+            pointRadius: 0,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          plugins: {
+            tooltip: {
+              position: 'nearest',
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
         }
-      ];
+      };
+
+      new Chart(this.temperatureChart.nativeElement.getContext('2d'), config);
     });
   }
 }

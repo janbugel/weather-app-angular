@@ -1,13 +1,3 @@
-<div class="temperature-chart-container" *ngIf="chartData && chartData.length">
-  <ngx-charts-line-chart
-    [scheme]="colorScheme"
-    [results]="chartData"
-    [gradient]="gradient"
-    [yAxis]="showYAxis"
-    [legend]="showLegend"
-    [showXAxisLabel]="showXAxisLabel"
-    [showYAxisLabel]="showYAxisLabel"
-    [xAxisLabel]="xAxisLabel"
-    [yAxisLabel]="yAxisLabel">
-  </ngx-charts-line-chart>
+<div class="temperature-chart-container">
+  <canvas #temperatureChart></canvas>
 </div>

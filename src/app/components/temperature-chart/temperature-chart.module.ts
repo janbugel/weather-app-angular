@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 import { TemperatureChartComponent } from './temperature-chart.component';
 
@@ -9,8 +8,7 @@ import { TemperatureChartComponent } from './temperature-chart.component';
     TemperatureChartComponent
   ],
   imports: [
-    CommonModule,
-    NgxChartsModule
+    CommonModule
   ],
   exports: [
     TemperatureChartComponent

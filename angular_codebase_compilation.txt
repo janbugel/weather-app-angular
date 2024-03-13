@@ -273,7 +273,31 @@ export class WeatherTableModule {}
 
 
 --- components/weather-table/weather-table.component.sass ---
+.weather-table-container
+  display: block
+  overflow-x: auto
+  width: 100%
 
+  table
+    width: 100%
+    table-layout: fixed 
+
+    th, td
+      overflow: hidden
+      text-overflow: ellipsis
+      white-space: normal
+      word-wrap: break-word
+
+.warning-message
+  color: red 
+  display: flex
+  justify-content: center
+  align-items: center
+
+.past-days-selector
+  display: flex
+  justify-content: center
+  align-items: center
 
 
 --- components/weather-table/weather-table.component.ts ---
@@ -410,80 +434,16 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
 
 
 --- components/temperature-chart/temperature-chart.component.sass ---
-.temperature-chart-container
-  width: 100%
-  height: 500px
-  overflow-x: hidden
-  margin-top: 5%
 
 
 
 --- components/temperature-chart/temperature-chart.component.ts ---
-import { Component, OnInit, Input, SimpleChanges, OnChanges } from '@angular/core';
-import { ForecastService } from '../../services/forecast.service';
-
-@Component({
-  selector: 'app-temperature-chart',
-  templateUrl: './temperature-chart.component.html',
-  styleUrls: ['./temperature-chart.component.sass'],
-})
-export class TemperatureChartComponent implements OnInit, OnChanges {
-  // Initialize pastDays with value from localStorage, or default to 7 if not present
-  @Input() pastDays: number = parseInt(localStorage.getItem('pastDays') || '7'); 
-  chartData: any[] = [];
-
-  showXAxis = true;
-  showYAxis = true;
-  gradient = false;
-  showLegend = false;
-  showXAxisLabel = true;
-  xAxisLabel = 'Time';
-  showYAxisLabel = true;
-  yAxisLabel = 'Temperature (°C)';
-  colorScheme = 'vivid';
-
-  constructor(private forecastService: ForecastService) {}
-
-  ngOnInit(): void {
-    this.loadChartData();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['pastDays']) {
-      this.loadChartData();
-    }
-  }
-
-  private loadChartData(): void {
-    this.forecastService.getWeatherForecast(this.pastDays).subscribe(data => {
-      this.chartData = [
-        {
-          name: 'Temperature',
-          series: data.hourly.time.map((time: string, index: number) => ({
-            name: new Date(time).toLocaleString(),
-            value: data.hourly.temperature_2m[index]
-          }))
-        }
-      ];
-    });
-  }
-}
 
 
 
 --- components/temperature-chart/temperature-chart.component.html ---
-<div class="temperature-chart-container" *ngIf="chartData && chartData.length">
-  <ngx-charts-line-chart
-    [scheme]="colorScheme"
-    [results]="chartData"
-    [gradient]="gradient"
-    [yAxis]="showYAxis"
-    [legend]="showLegend"
-    [showXAxisLabel]="showXAxisLabel"
-    [showYAxisLabel]="showYAxisLabel"
-    [xAxisLabel]="xAxisLabel"
-    [yAxisLabel]="yAxisLabel">
-  </ngx-charts-line-chart>
+<div class="temperature-chart-container">
+  <canvas #temperatureChart></canvas>
 </div>
 
 
@@ -517,7 +477,6 @@ describe('TemperatureChartComponent', () => {
 --- components/temperature-chart/temperature-chart.module.ts ---
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 import { TemperatureChartComponent } from './temperature-chart.component';
 
@@ -526,8 +485,7 @@ import { TemperatureChartComponent } from './temperature-chart.component';
     TemperatureChartComponent
   ],
   imports: [
-    CommonModule,
-    NgxChartsModule
+    CommonModule
   ],
   exports: [
     TemperatureChartComponent
