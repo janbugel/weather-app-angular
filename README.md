@@ -17,11 +17,11 @@ https://janbugel.github.io/weather-app-angular/
 - [x] Display past weather and forecast table
 - [x] Calculate Feel Temperature (heat index)
 - [x] weather code display on weather table from api accoriding to WMO Weather interpretation codes (WW) 
-- [x] Split app.module.ts into separate modules for each component
+- [x] separate modules for each component
 - [x] Improve calculator
-- [ ] Improve UI
+- [x] Improve UI
 - [ ] Historical api to have data for more than past 92 days
-- [ ] Clean code - refactor - split features into separate compoents/services (cleanup, simplify)
+- [ ] Clean code - refactor - split features into separate compoents/services (cleanup, simplify), utils, services etc
 - [ ] Testing
 - [ ] Standalone components 
 
