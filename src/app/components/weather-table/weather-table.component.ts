@@ -3,6 +3,7 @@ import { ForecastService } from '../../services/forecast.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { PageEvent } from '@angular/material/paginator';
 
 interface WeatherData {
   datetime: string;
@@ -21,8 +22,9 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['datetime', 'weatherState', 'temperature', 'humidity', 'pressure'];
   dataSource = new MatTableDataSource<WeatherData>();
 
-  // Initialize pastDays with a value from localStorage or default to 7
   pastDays = parseInt(localStorage.getItem('pastDays') || '7');
+  paginatorPageIndex = parseInt(localStorage.getItem('paginatorPageIndex') || '0');
+  paginatorPageSize = parseInt(localStorage.getItem('paginatorPageSize') || '10');
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -37,11 +39,18 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.paginator.pageIndex = this.paginatorPageIndex;
+    this.paginator.pageSize = this.paginatorPageSize;
+    this.paginator.page.subscribe((pageEvent: PageEvent) => {
+      this.paginatorPageIndex = pageEvent.pageIndex;
+      this.paginatorPageSize = pageEvent.pageSize;
+      localStorage.setItem('paginatorPageIndex', this.paginatorPageIndex.toString());
+      localStorage.setItem('paginatorPageSize', this.paginatorPageSize.toString());
+    });
   }
 
   updatePastDays(): void {
     if (this.pastDays > 92) {
-      // Do nothing if pastDays is more than 92
       return;
     }
 
@@ -57,7 +66,7 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
       this.dataSource.data = data.hourly.time.map((time: string, index: number) => {
         const date = new Date(time);
         const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // +1 because getMonth() returns 0-11
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const year = date.getFullYear().toString();
         const formattedDate = `${day}.${month}.${year}`;
         const formattedTime = date.toLocaleTimeString('it-IT', {
@@ -111,5 +120,10 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
       case 99: return 'Thunderstorm with heavy hail';
       default: return 'Unknown';
     }
+  }
+
+  updatePaginatorSettings(event: PageEvent) {
+    localStorage.setItem('paginatorPageIndex', event.pageIndex.toString());
+    localStorage.setItem('paginatorPageSize', event.pageSize.toString());
   }
 }
