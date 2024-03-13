@@ -1,6 +1,6 @@
 
 --- app.component.html ---
-<mat-toolbar color="primary">
+<mat-toolbar class= toolbar, color="primary">
   <span>London Weather ☀️🌧️</span>
   <span class="spacer"></span>
   <!-- Desktop Navigation -->
@@ -155,6 +155,8 @@ export class AppComponent {
   @media (min-width: 768px)
     display: none
 
+.toolbar
+  margin: 0px
 
 
 --- components/weather-table/weather-table.component.spec.ts ---
@@ -440,18 +442,27 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
 
 
 --- components/temperature-chart/temperature-chart.component.ts ---
-import { Component, ViewChild, AfterViewInit } from '@angular/core';
-import { Chart, registerables, ChartConfiguration, ChartEvent } from 'chart.js';
+import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import {
+  Chart,
+  registerables,
+  ChartConfiguration,
+  ChartEvent,
+  ActiveElement,
+  ChartType,
+} from 'chart.js';
 import { ForecastService } from '../../services/forecast.service';
 
 @Component({
   selector: 'app-temperature-chart',
   templateUrl: './temperature-chart.component.html',
-  styleUrls: ['./temperature-chart.component.sass']
+  styleUrls: ['./temperature-chart.component.sass'],
 })
 export class TemperatureChartComponent implements AfterViewInit {
-  @ViewChild('temperatureChart') temperatureChart: any;
+  @ViewChild('temperatureChart')
+  temperatureChart!: ElementRef<HTMLCanvasElement>;
   private pastDays: number;
+  private chart?: Chart;
 
   constructor(private forecastService: ForecastService) {
     Chart.register(...registerables);
@@ -463,7 +474,7 @@ export class TemperatureChartComponent implements AfterViewInit {
   }
 
   private loadChart(): void {
-    this.forecastService.getWeatherForecast(this.pastDays).subscribe(data => {
+    this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
       const labels = data.hourly.time.map((datetime: string) => {
         const date = new Date(datetime);
         return `${date.getDate()}/${date.getMonth() + 1} ${date.getHours()}:00`;
@@ -471,40 +482,81 @@ export class TemperatureChartComponent implements AfterViewInit {
 
       const temperatures = data.hourly.temperature_2m;
 
-      const config: ChartConfiguration<'line'> = {
+      const config: ChartConfiguration<'line', number[], string> = {
         type: 'line',
         data: {
           labels: labels,
-          datasets: [{
-            label: 'Temperature (°C)',
-            backgroundColor: 'rgb(96, 111, 199)',
-            borderColor: 'rgb(96, 111, 199)',
-            data: temperatures,
-            fill: false,
-            pointRadius: 0,
-          }]
+          datasets: [
+            {
+              label: 'Temperature (°C)',
+              backgroundColor: 'rgb(96, 111, 199)',
+              borderColor: 'rgb(96, 111, 199)',
+              data: temperatures,
+              fill: false,
+              pointRadius: 0,
+            },
+          ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           interaction: {
-            mode: 'index',
+            mode: 'nearest',
             intersect: false,
+            axis: 'x',
           },
           plugins: {
             tooltip: {
               position: 'nearest',
-            }
+            },
+            legend: {
+              display: true,
+            },
           },
           scales: {
             y: {
-              beginAtZero: false
+              beginAtZero: false,
+            },
+            x: {
+              grid: {
+                drawOnChartArea: false,
+              },
+            },
+          },
+          elements: {
+            line: {
+              borderWidth: 2.5,
+            },
+            point: {
+              radius: 5, // dot size
+              hoverRadius: 5, // dot size on hower
+            },
+          },
+          onHover: (
+            event: ChartEvent,
+            chartElements: ActiveElement[],
+            chart: Chart
+          ) => {
+            if (chartElements.length) {
+              const x = chartElements[0].element.x;
+              const yAxis = chart.scales['y'];
+              chart.ctx.save();
+              chart.ctx.beginPath();
+              chart.ctx.moveTo(x, yAxis.top);
+              chart.ctx.lineTo(x, yAxis.bottom);
+              chart.ctx.lineWidth = 2; // line width
+              chart.ctx.strokeStyle = 'rgba(96, 111, 199, 0.5)';
+              chart.ctx.stroke();
+              chart.ctx.restore();
             }
-          }
-        }
+          },
+        },
       };
 
-      new Chart(this.temperatureChart.nativeElement.getContext('2d'), config);
+      const ctx = this.temperatureChart.nativeElement.getContext('2d');
+      if (ctx) {
+        this.chart = new Chart(ctx, config);
+      }
     });
   }
 }
@@ -832,18 +884,30 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ForecastService {
-  private baseUrl = 'https://api.open-meteo.com/v1/forecast';
+  private forecastBaseUrl = 'https://api.open-meteo.com/v1/forecast';
+  private historicalBaseUrl = 'https://archive-api.open-meteo.com/v1/archive';
 
   constructor(private http: HttpClient) {}
 
   getWeatherForecast(pastDays: number): Observable<any> {
     const params = {
-      latitude: 51.5074, // London's latitude
-      longitude: -0.1278, // London's longitude
+      latitude: 51.5074,
+      longitude: -0.1278,
       hourly: 'temperature_2m,relative_humidity_2m,pressure_msl,weather_code',
       past_days: pastDays
     };
-    return this.http.get(this.baseUrl, { params });
+    return this.http.get(this.forecastBaseUrl, { params });
+  }
+
+  getHistoricalWeather(startDate: string, endDate: string): Observable<any> {
+    const params = {
+      latitude: 51.5074,
+      longitude: -0.1278, 
+      start_date: startDate,
+      end_date: endDate,
+      hourly: 'temperature_2m,relative_humidity_2m,pressure_msl,weather_code'
+    };
+    return this.http.get(this.historicalBaseUrl, { params });
   }
 }
 
