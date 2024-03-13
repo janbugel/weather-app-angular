@@ -6,17 +6,29 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ForecastService {
-  private baseUrl = 'https://api.open-meteo.com/v1/forecast';
+  private forecastBaseUrl = 'https://api.open-meteo.com/v1/forecast';
+  private historicalBaseUrl = 'https://archive-api.open-meteo.com/v1/archive';
 
   constructor(private http: HttpClient) {}
 
   getWeatherForecast(pastDays: number): Observable<any> {
     const params = {
-      latitude: 51.5074, // London's latitude
-      longitude: -0.1278, // London's longitude
+      latitude: 51.5074,
+      longitude: -0.1278,
       hourly: 'temperature_2m,relative_humidity_2m,pressure_msl,weather_code',
       past_days: pastDays
     };
-    return this.http.get(this.baseUrl, { params });
+    return this.http.get(this.forecastBaseUrl, { params });
+  }
+
+  getHistoricalWeather(startDate: string, endDate: string): Observable<any> {
+    const params = {
+      latitude: 51.5074,
+      longitude: -0.1278, 
+      start_date: startDate,
+      end_date: endDate,
+      hourly: 'temperature_2m,relative_humidity_2m,pressure_msl,weather_code'
+    };
+    return this.http.get(this.historicalBaseUrl, { params });
   }
 }
