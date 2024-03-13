@@ -33,7 +33,7 @@ def compile_angular_codebase_to_text(root_dir, output_filename):
         process_directory(root_dir, output_file)
 
 if __name__ == '__main__':
-    root_dir = '/Users/asdf/Documents/weather-app-angular/src/app' 
+    root_dir = '/Users/asdf/Documents/weather-app-angular/src' 
     output_filename = 'angular_codebase_compilation.txt'
     compile_angular_codebase_to_text(root_dir, output_filename)
     print(f"Compilation completed: {output_filename}")
