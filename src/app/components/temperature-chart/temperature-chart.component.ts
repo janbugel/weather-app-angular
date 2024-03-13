@@ -18,6 +18,7 @@ export class TemperatureChartComponent implements AfterViewInit {
   @ViewChild('temperatureChart')
   temperatureChart!: ElementRef<HTMLCanvasElement>;
   private pastDays: number;
+  private chart?: Chart;
 
   constructor(private forecastService: ForecastService) {
     Chart.register(...registerables);
@@ -56,7 +57,7 @@ export class TemperatureChartComponent implements AfterViewInit {
           responsive: true,
           maintainAspectRatio: false,
           interaction: {
-            mode: 'index',
+            mode: 'nearest',
             intersect: false,
             axis: 'x',
           },
@@ -80,15 +81,12 @@ export class TemperatureChartComponent implements AfterViewInit {
           },
           elements: {
             line: {
-              borderWidth: 2,
+              borderWidth: 2.5,
             },
             point: {
-              radius: 0,
+              radius: 5, // dot size
+              hoverRadius: 5, // dot size on hower
             },
-          },
-          hover: {
-            mode: 'index',
-            intersect: false,
           },
           onHover: (
             event: ChartEvent,
@@ -102,7 +100,7 @@ export class TemperatureChartComponent implements AfterViewInit {
               chart.ctx.beginPath();
               chart.ctx.moveTo(x, yAxis.top);
               chart.ctx.lineTo(x, yAxis.bottom);
-              chart.ctx.lineWidth = 1;
+              chart.ctx.lineWidth = 2; // line width
               chart.ctx.strokeStyle = 'rgba(96, 111, 199, 0.5)';
               chart.ctx.stroke();
               chart.ctx.restore();
@@ -113,7 +111,7 @@ export class TemperatureChartComponent implements AfterViewInit {
 
       const ctx = this.temperatureChart.nativeElement.getContext('2d');
       if (ctx) {
-        new Chart(ctx, config);
+        this.chart = new Chart(ctx, config);
       }
     });
   }
