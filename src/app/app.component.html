@@ -1,17 +1,22 @@
-<div class="app-header">
-  <h1 class="app-title">London Weather ☀️🌧️</h1>
-  <div class="tabs-container">
-    <mat-tab-group class="desktop-tabs">
-      <mat-tab label="Weather Table">
-        <app-weather-table (pastDaysChanged)="updatePastDays($event)"></app-weather-table>
-      </mat-tab>
-      <mat-tab label="Temperature Chart">
-        <app-temperature-chart [pastDays]="selectedPastDays"></app-temperature-chart>
-      </mat-tab>
-      <mat-tab label="Heat Index Calculator">
-        <app-heat-index-calculator></app-heat-index-calculator>
-      </mat-tab>
-    </mat-tab-group>
-  </div>
+<mat-toolbar color="primary">
+  <span>London Weather ☀️🌧️</span>
+  <span class="spacer"></span>
+  <button mat-button [matMenuTriggerFor]="appMenu">Menu</button>
+  <mat-menu #appMenu="matMenu">
+    <button mat-menu-item (click)="selectedComponent = 'weather-table'">
+      Weather Table
+    </button>
+    <button mat-menu-item (click)="selectedComponent = 'temperature-chart'">
+      Temperature Chart
+    </button>
+    <button mat-menu-item (click)="selectedComponent = 'heat-index-calculator'">
+      Heat Index Calculator
+    </button>
+  </mat-menu>
+</mat-toolbar>
+
+<div class="content">
+  <app-weather-table *ngIf="selectedComponent === 'weather-table'"></app-weather-table>
+  <app-temperature-chart *ngIf="selectedComponent === 'temperature-chart'"></app-temperature-chart>
+  <app-heat-index-calculator *ngIf="selectedComponent === 'heat-index-calculator'"></app-heat-index-calculator>
 </div>
-<router-outlet></router-outlet>

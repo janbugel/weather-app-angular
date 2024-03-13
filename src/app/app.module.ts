@@ -6,7 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatMenuModule } from '@angular/material/menu';
 import { WeatherTableModule } from './components/weather-table/weather-table.module'; 
 import { TemperatureChartModule } from './components/temperature-chart/temperature-chart.module'; 
 import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module'; 
@@ -22,7 +22,7 @@ import { HeatIndexCalculatorModule } from './components/heat-index-calculator/he
     HttpClientModule,
     MatToolbarModule,
     MatButtonModule,
-    MatTabsModule,
+    MatMenuModule,
     WeatherTableModule, 
     TemperatureChartModule, 
     HeatIndexCalculatorModule, 
