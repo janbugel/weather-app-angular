@@ -21,6 +21,7 @@ https://janbugel.github.io/weather-app-angular/
 - [ ] Improve UI
 - [ ] Historical api to have data for more than past 92 days
 - [ ] Clean code - refactor - split features into separate compoents/services (cleanup, simplify)
+- [ ] Testing
 - [ ] Standalone components 
 
 ## deployment
