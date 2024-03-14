@@ -1,6 +1,9 @@
 import { MatTableDataSource } from '@angular/material/table';
 import { calculateHeatIndexFahrenheit } from './calculate-heat-index';
-import { convertCelsiusToFahrenheit, convertFahrenheitToCelsius } from './temperature-conversions';
+import {
+  convertCelsiusToFahrenheit,
+  convertFahrenheitToCelsius,
+} from './temperature-conversions';
 
 export interface HeatIndexRecord {
   temperature: number;
@@ -15,18 +18,28 @@ export class HeatIndexHistory {
 
   static loadHistory(): MatTableDataSource<HeatIndexRecord> {
     const storedHistory = localStorage.getItem(HeatIndexHistory.STORAGE_KEY);
-    const historyData: HeatIndexRecord[] = storedHistory ? JSON.parse(storedHistory) : [];
+    const historyData: HeatIndexRecord[] = storedHistory
+      ? JSON.parse(storedHistory)
+      : [];
     return new MatTableDataSource<HeatIndexRecord>(historyData);
   }
 
-  static saveRecord(temperature: number, humidity: number, unit: 'C' | 'F', heatIndex: number | null): void {
+  static saveRecord(
+    temperature: number,
+    humidity: number,
+    unit: 'C' | 'F',
+    heatIndex: number | null
+  ): void {
     if (heatIndex === null) return;
 
     let historyData: HeatIndexRecord[] = HeatIndexHistory.loadHistory().data;
-    
+
     historyData.unshift({ temperature, humidity, heatIndex, unit });
     historyData = historyData.slice(0, HeatIndexHistory.MAX_HISTORY_LENGTH);
 
-    localStorage.setItem(HeatIndexHistory.STORAGE_KEY, JSON.stringify(historyData));
+    localStorage.setItem(
+      HeatIndexHistory.STORAGE_KEY,
+      JSON.stringify(historyData)
+    );
   }
 }

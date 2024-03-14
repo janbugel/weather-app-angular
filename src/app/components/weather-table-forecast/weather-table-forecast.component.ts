@@ -28,13 +28,17 @@ export class WeatherTableForecastComponent implements OnInit, AfterViewInit {
     'pressure',
   ];
   dataSource = new MatTableDataSource<WeatherData>();
+  isMobile: boolean = false;
 
   pastDays = parseInt(localStorage.getItem('pastDays') || '7');
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private forecastService: WeatherApiService) {}
+  constructor(private forecastService: WeatherApiService) {
+    this.adjustForScreenSize();
+    window.onresize = () => this.adjustForScreenSize();
+  }
 
   ngOnInit(): void {
     this.loadWeatherData();
@@ -66,5 +70,12 @@ export class WeatherTableForecastComponent implements OnInit, AfterViewInit {
       this.loadWeatherData();
       localStorage.setItem('pastDays', this.pastDays.toString());
     }
+  }
+
+  private adjustForScreenSize(): void {
+    this.isMobile = window.innerWidth < 768;
+    this.displayedColumns = this.isMobile
+      ? ['datetime', 'weatherState', 'temperature', 'humidity']
+      : ['datetime', 'weatherState', 'temperature', 'humidity', 'pressure'];
   }
 }

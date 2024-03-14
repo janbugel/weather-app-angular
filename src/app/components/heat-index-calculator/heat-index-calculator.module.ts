@@ -6,14 +6,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table'; 
+import { MatTableModule } from '@angular/material/table';
 
 import { HeatIndexCalculatorComponent } from './heat-index-calculator.component';
 
 @NgModule({
-  declarations: [
-    HeatIndexCalculatorComponent
-  ],
+  declarations: [HeatIndexCalculatorComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -22,10 +20,8 @@ import { HeatIndexCalculatorComponent } from './heat-index-calculator.component'
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatTableModule 
+    MatTableModule,
   ],
-  exports: [
-    HeatIndexCalculatorComponent
-  ]
+  exports: [HeatIndexCalculatorComponent],
 })
 export class HeatIndexCalculatorModule {}

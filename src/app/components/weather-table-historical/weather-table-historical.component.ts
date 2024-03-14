@@ -23,6 +23,7 @@ interface WeatherData {
 export class WeatherTableHistoricalComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['datetime', 'weatherState', 'temperature', 'humidity', 'pressure'];
   dataSource = new MatTableDataSource<WeatherData>();
+  isMobile: boolean = false;
 
   startDate: string; 
   endDate: string; 
@@ -34,6 +35,8 @@ export class WeatherTableHistoricalComponent implements OnInit, AfterViewInit {
     const today = formatDateForAPI(new Date());
     this.startDate = localStorage.getItem('historicalStartDate') || today;
     this.endDate = localStorage.getItem('historicalEndDate') || today;
+    this.adjustForScreenSize();
+    window.onresize = () => this.adjustForScreenSize();
   }
 
   ngOnInit(): void {}
@@ -58,13 +61,13 @@ export class WeatherTableHistoricalComponent implements OnInit, AfterViewInit {
     this.weatherService.getHistoricalWeather(formattedStartDate, formattedEndDate).subscribe(data => {
       this.dataSource.data = transformWeatherData(data);
       this.dataSource.sort = this.sort;
-      
-      setTablePagination({
-        dataSource: this.dataSource,
-        paginator: this.paginator,
-        pageIndexKey: 'weatherPaginationPageIndex',
-        pageSizeKey: 'weatherPaginationPageSize',
-      });
     });
+  }
+
+  private adjustForScreenSize(): void {
+    this.isMobile = window.innerWidth < 768;
+    this.displayedColumns = this.isMobile
+      ? ['datetime', 'weatherState', 'temperature', 'humidity']
+      : ['datetime', 'weatherState', 'temperature', 'humidity', 'pressure'];
   }
 }
