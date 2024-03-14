@@ -32,7 +32,7 @@ export class TemperatureChartComponent implements AfterViewInit {
     this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
       const labels = this.generateLabels(data.hourly.time);
       const temperatures = data.hourly.temperature_2m;
-      this.createChart(this.temperatureChart.nativeElement, labels, temperatures);
+      this.createChart(this.temperatureChart.nativeElement, labels, temperatures, 'Temperature °C - Forecast');
     });
   }
 
@@ -42,14 +42,14 @@ export class TemperatureChartComponent implements AfterViewInit {
     this.forecastService.getHistoricalWeather(formatDateForAPI(new Date(startDate)), formatDateForAPI(new Date(endDate))).subscribe((data) => {
       const labels = this.generateLabels(data.hourly.time);
       const temperatures = data.hourly.temperature_2m;
-      this.createChart(this.historicalTemperatureChart.nativeElement, labels, temperatures);
+      this.createChart(this.historicalTemperatureChart.nativeElement, labels, temperatures, 'Temperature °C - Historical');
     });
   }
 
-  private createChart(canvas: HTMLCanvasElement, labels: string[], temperatures: number[]): void {
+  private createChart(canvas: HTMLCanvasElement, labels: string[], temperatures: number[], label: string): void {
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      const chartAppearance = getTemperatureChartAppearance(labels, temperatures);
+      const chartAppearance = getTemperatureChartAppearance(labels, temperatures, label);
       new Chart(ctx, chartAppearance);
     }
   }

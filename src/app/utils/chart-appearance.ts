@@ -1,13 +1,13 @@
 import { ChartConfiguration, ChartEvent, ActiveElement, Chart } from 'chart.js';
 
-export function getTemperatureChartAppearance(labels: string[], temperatures: number[]): ChartConfiguration<'line', number[], string> {
+export function getTemperatureChartAppearance(labels: string[], temperatures: number[], chartLabel: string): ChartConfiguration<'line', number[], string> {
     return {
         type: 'line',
         data: {
             labels: labels,
             datasets: [
                 {
-                    label: 'Temperature (°C)',
+                    label: chartLabel,
                     backgroundColor: 'rgb(96, 111, 199)',
                     borderColor: 'rgb(96, 111, 199)',
                     data: temperatures,
@@ -72,5 +72,3 @@ export function getTemperatureChartAppearance(labels: string[], temperatures: nu
         },
     };
 }
-
-  
