@@ -23,10 +23,7 @@ export class HeatIndexHistory {
     if (heatIndex === null) return;
 
     let historyData: HeatIndexRecord[] = HeatIndexHistory.loadHistory().data;
-    if (unit === 'C') {
-      heatIndex = convertFahrenheitToCelsius(heatIndex);
-    }
-
+    
     historyData.unshift({ temperature, humidity, heatIndex, unit });
     historyData = historyData.slice(0, HeatIndexHistory.MAX_HISTORY_LENGTH);
 

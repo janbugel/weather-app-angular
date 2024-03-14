@@ -33,10 +33,7 @@ export class HeatIndexCalculatorComponent {
         return;
       }
 
-      // Direct calculation in Fahrenheit for the heat index.
       let heatIndexFahrenheit = calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity);
-      
-      // Convert back to Celsius for display if needed.
       this.heatIndex = this.temperatureUnit === 'C' ? convertFahrenheitToCelsius(heatIndexFahrenheit) : heatIndexFahrenheit;
 
       HeatIndexHistory.saveRecord(this.temperature, this.humidity, this.temperatureUnit, this.heatIndex);

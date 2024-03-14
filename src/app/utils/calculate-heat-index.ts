@@ -1,4 +1,6 @@
 export function calculateHeatIndexFahrenheit(temp: number, humidity: number): number {
+    if (humidity < 40) return temp;
+
     let heatIndex =
       -42.379 +
       2.04901523 * temp +
@@ -9,13 +11,10 @@ export function calculateHeatIndexFahrenheit(temp: number, humidity: number): nu
       0.00122874 * temp ** 2 * humidity +
       0.00085282 * temp * humidity ** 2 -
       0.00000199 * temp ** 2 * humidity ** 2;
+      
+    if (temp < 80) {
+        heatIndex = temp;
+    }
+
     return Math.round(heatIndex * 10) / 10;
-}
-
-export function convertCelsiusToFahrenheit(celsius: number): number {
-    return (celsius * 9) / 5 + 32;
-}
-
-export function convertFahrenheitToCelsius(fahrenheit: number): number {
-    return ((fahrenheit - 32) * 5) / 9;
 }
