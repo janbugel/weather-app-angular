@@ -72,3 +72,5 @@ export function getTemperatureChartAppearance(labels: string[], temperatures: nu
         },
     };
 }
+
+  

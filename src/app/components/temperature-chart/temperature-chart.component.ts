@@ -1,6 +1,7 @@
 import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { WeatherApiService } from '../../services/weather-api.service';
+import { formatDateForAPI } from '../../utils/format-date';
 import { getTemperatureChartAppearance } from '../../utils/chart-appearance';
 
 @Component({
@@ -11,8 +12,11 @@ import { getTemperatureChartAppearance } from '../../utils/chart-appearance';
 export class TemperatureChartComponent implements AfterViewInit {
   @ViewChild('temperatureChart')
   temperatureChart!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('historicalTemperatureChart')
+  historicalTemperatureChart!: ElementRef<HTMLCanvasElement>;
   private pastDays: number;
   private chart?: Chart;
+  private historicalChart?: Chart;
 
   constructor(private forecastService: WeatherApiService) {
     Chart.register(...registerables);
@@ -20,24 +24,40 @@ export class TemperatureChartComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.loadChart();
+    this.loadForecastChart();
+    this.loadHistoricalChart();
   }
 
-  private loadChart(): void {
+  private loadForecastChart(): void {
     this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
-      const labels = data.hourly.time.map((datetime: string) => {
-        const date = new Date(datetime);
-        return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:00`;
-      });
-
+      const labels = this.generateLabels(data.hourly.time);
       const temperatures = data.hourly.temperature_2m;
+      this.createChart(this.temperatureChart.nativeElement, labels, temperatures);
+    });
+  }
 
+  private loadHistoricalChart(): void {
+    const startDate = localStorage.getItem('historicalStartDate') || new Date().toISOString().split('T')[0];
+    const endDate = localStorage.getItem('historicalEndDate') || new Date().toISOString().split('T')[0];
+    this.forecastService.getHistoricalWeather(formatDateForAPI(new Date(startDate)), formatDateForAPI(new Date(endDate))).subscribe((data) => {
+      const labels = this.generateLabels(data.hourly.time);
+      const temperatures = data.hourly.temperature_2m;
+      this.createChart(this.historicalTemperatureChart.nativeElement, labels, temperatures);
+    });
+  }
+
+  private createChart(canvas: HTMLCanvasElement, labels: string[], temperatures: number[]): void {
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
       const chartAppearance = getTemperatureChartAppearance(labels, temperatures);
+      new Chart(ctx, chartAppearance);
+    }
+  }
 
-      const ctx = this.temperatureChart.nativeElement.getContext('2d');
-      if (ctx) {
-        this.chart = new Chart(ctx, chartAppearance);
-      }
+  private generateLabels(times: string[]): string[] {
+    return times.map((datetime: string) => {
+      const date = new Date(datetime);
+      return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:00`;
     });
   }
 }

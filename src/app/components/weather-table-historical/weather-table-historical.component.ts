@@ -21,7 +21,7 @@ interface WeatherData {
   styleUrls: ['./weather-table-historical.component.sass']
 })
 export class WeatherTableHistoricalComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['datetime', 'temperature', 'humidity', 'pressure', 'weatherState'];
+  displayedColumns: string[] = ['datetime', 'weatherState', 'temperature', 'humidity', 'pressure'];
   dataSource = new MatTableDataSource<WeatherData>();
 
   startDate: string; 
