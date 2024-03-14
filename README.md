@@ -20,6 +20,7 @@ https://janbugel.github.io/weather-app-angular/
 - [x] separate modules for each component
 - [x] Improve calculator
 - [x] Improve UI
+- [ ] slider that smoothes out the chart (reduces or adds points in range)
 - [ ] Historical api to have data for more than past 92 days
 - [ ] Clean code - refactor - split features into separate compoents/services (cleanup, simplify), utils, services etc
 - [ ] Testing
