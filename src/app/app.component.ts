@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.sass']
 })
 export class AppComponent {
-  selectedComponent: 'weather-table' | 'temperature-chart' | 'heat-index-calculator' = 'weather-table';
+  selectedComponent: 'weather-table' | 'temperature-chart' | 'heat-index-calculator' | 'weather-historical' = 'weather-table';
 }

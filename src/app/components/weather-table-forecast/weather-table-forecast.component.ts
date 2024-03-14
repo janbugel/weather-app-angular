@@ -45,8 +45,15 @@ export class WeatherTableForecastComponent implements OnInit, AfterViewInit {
     setTablePagination({
       dataSource: this.dataSource,
       paginator: this.paginator,
-      pageIndexKey: 'paginatorPageIndex',
-      pageSizeKey: 'paginatorPageSize',
+      pageIndexKey: 'weatherPaginationPageIndex',
+      pageSizeKey: 'weatherPaginationPageSize',
+    });
+  }
+
+  private loadWeatherData(): void {
+    this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
+      this.dataSource.data = transformWeatherData(data);
+      this.dataSource.sort = this.sort;
     });
   }
 
@@ -59,12 +66,5 @@ export class WeatherTableForecastComponent implements OnInit, AfterViewInit {
       this.loadWeatherData();
       localStorage.setItem('pastDays', this.pastDays.toString());
     }
-  }
-
-  private loadWeatherData(): void {
-    this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
-      this.dataSource.data = transformWeatherData(data);
-      this.dataSource.sort = this.sort;
-    });
   }
 }

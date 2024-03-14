@@ -10,12 +10,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { WeatherTableForecastModule } from './components/weather-table-forecast/weather-table-forecast.module'; 
 import { TemperatureChartModule } from './components/temperature-chart/temperature-chart.module'; 
 import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module';
-import { WeatherTableHistoricalComponent } from './components/weather-table-historical/weather-table-historical.component';
+import { WeatherTableHistoricalModule } from './components/weather-table-historical/weather-table-historical.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    WeatherTableHistoricalComponent,
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -25,9 +24,10 @@ import { WeatherTableHistoricalComponent } from './components/weather-table-hist
     MatToolbarModule,
     MatButtonModule,
     MatMenuModule,
-    WeatherTableForecastModule, 
-    TemperatureChartModule, 
-    HeatIndexCalculatorModule, 
+    WeatherTableForecastModule,
+    TemperatureChartModule,
+    HeatIndexCalculatorModule,
+    WeatherTableHistoricalModule
   ],
   providers: [],
   bootstrap: [AppComponent]

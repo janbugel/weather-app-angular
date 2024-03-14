@@ -3,20 +3,24 @@
   <span class="spacer"></span>
   <!-- Desktop Navigation -->
   <div class="desktop-menu">
-    <button mat-button (click)="selectedComponent = 'weather-table'">Weather Table</button>
+    <button mat-button (click)="selectedComponent = 'weather-table'">Forecast Weather Table</button>
+    <button mat-button (click)="selectedComponent = 'weather-historical'">Historical Weather</button>
     <button mat-button (click)="selectedComponent = 'temperature-chart'">Temperature Chart</button>
     <button mat-button (click)="selectedComponent = 'heat-index-calculator'">Heat Index Calculator</button>
+    
   </div>
   <!-- Mobile Menu Trigger -->
   <button mat-button [matMenuTriggerFor]="appMenu" class="mobile-menu">Menu</button>
   <mat-menu #appMenu="matMenu">
-    <button mat-menu-item (click)="selectedComponent = 'weather-table'">Weather Table</button>
+    <button mat-menu-item (click)="selectedComponent = 'weather-table'">Forecast Weather Table</button>
+    <button mat-menu-item (click)="selectedComponent = 'weather-historical'">Historical Weather</button>
     <button mat-menu-item (click)="selectedComponent = 'temperature-chart'">Temperature Chart</button>
     <button mat-menu-item (click)="selectedComponent = 'heat-index-calculator'">Heat Index Calculator</button>
   </mat-menu>
 </mat-toolbar>
 <div class="content">
   <app-weather-table-forecast *ngIf="selectedComponent === 'weather-table'"></app-weather-table-forecast>
+  <app-weather-table-historical *ngIf="selectedComponent === 'weather-historical'"></app-weather-table-historical>
   <app-temperature-chart *ngIf="selectedComponent === 'temperature-chart'"></app-temperature-chart>
   <app-heat-index-calculator *ngIf="selectedComponent === 'heat-index-calculator'"></app-heat-index-calculator>
 </div>
