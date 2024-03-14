@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { convertFahrenheitToCelsius, convertCelsiusToFahrenheit } from '../../utils/temperature-conversions';
 import { calculateHeatIndexFahrenheit } from '../../utils/calculate-heat-index';
-import { convertCelsiusToFahrenheit, convertFahrenheitToCelsius } from '../../utils/temperature-conversions';
+import { HeatIndexHistory, HeatIndexRecord } from '../../utils/heat-index-history';
 
 @Component({
   selector: 'app-heat-index-calculator',
@@ -14,10 +15,10 @@ export class HeatIndexCalculatorComponent {
   temperatureUnit: 'C' | 'F' = 'C';
   heatIndex: number | null = null;
   message: string | null = null;
-  history = new MatTableDataSource<{ temperature: number; humidity: number; heatIndex: number; unit: string; }>([]);
+  history: MatTableDataSource<HeatIndexRecord>;
 
   constructor() {
-    this.loadHistory();
+    this.history = HeatIndexHistory.loadHistory();
   }
 
   calculateHeatIndex(): void {
@@ -25,42 +26,21 @@ export class HeatIndexCalculatorComponent {
     this.message = null;
 
     if (this.temperature !== null && this.humidity !== null) {
-      let temp = this.temperature;
-      if (this.temperatureUnit === 'C') {
-        temp = convertCelsiusToFahrenheit(this.temperature);
-      }
+      let tempInFahrenheit = this.temperatureUnit === 'C' ? convertCelsiusToFahrenheit(this.temperature) : this.temperature;
 
-      if (temp < 80) {
+      if (tempInFahrenheit < 80) {
         this.message = 'Heat Index value cannot be calculated for temperatures below 26.7°C (80°F).';
         return;
       }
 
-      this.heatIndex = calculateHeatIndexFahrenheit(temp, this.humidity);
-      if (this.temperatureUnit === 'C') {
-        this.heatIndex = convertFahrenheitToCelsius(this.heatIndex);
-      }
-      this.addToHistory();
-    }
-  }
+      // Direct calculation in Fahrenheit for the heat index.
+      let heatIndexFahrenheit = calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity);
+      
+      // Convert back to Celsius for display if needed.
+      this.heatIndex = this.temperatureUnit === 'C' ? convertFahrenheitToCelsius(heatIndexFahrenheit) : heatIndexFahrenheit;
 
-  private addToHistory(): void {
-    if (this.heatIndex !== null) {
-      const newHistory = this.history.data;
-      newHistory.unshift({
-        temperature: this.temperature!,
-        humidity: this.humidity!,
-        heatIndex: this.heatIndex,
-        unit: this.temperatureUnit,
-      });
-      this.history.data = newHistory.slice(0, 5); // Keep only the last 5 entries
-      localStorage.setItem('heatIndexHistory', JSON.stringify(this.history.data));
-    }
-  }
-
-  private loadHistory(): void {
-    const history = localStorage.getItem('heatIndexHistory');
-    if (history) {
-      this.history.data = JSON.parse(history);
+      HeatIndexHistory.saveRecord(this.temperature, this.humidity, this.temperatureUnit, this.heatIndex);
+      this.history = HeatIndexHistory.loadHistory();
     }
   }
 }
