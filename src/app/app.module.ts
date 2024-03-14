@@ -7,13 +7,15 @@ import { AppComponent } from './app.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { WeatherTableModule } from './components/weather-table/weather-table.module'; 
+import { WeatherTableForecastModule } from './components/weather-table-forecast/weather-table-forecast.module'; 
 import { TemperatureChartModule } from './components/temperature-chart/temperature-chart.module'; 
 import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module';
+import { WeatherTableHistoricalComponent } from './components/weather-table-historical/weather-table-historical.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    WeatherTableHistoricalComponent,
   ],
   imports: [
     BrowserModule,
@@ -23,7 +25,7 @@ import { HeatIndexCalculatorModule } from './components/heat-index-calculator/he
     MatToolbarModule,
     MatButtonModule,
     MatMenuModule,
-    WeatherTableModule, 
+    WeatherTableForecastModule, 
     TemperatureChartModule, 
     HeatIndexCalculatorModule, 
   ],

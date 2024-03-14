@@ -16,7 +16,7 @@
   </mat-menu>
 </mat-toolbar>
 <div class="content">
-  <app-weather-table *ngIf="selectedComponent === 'weather-table'"></app-weather-table>
+  <app-weather-table-forecast *ngIf="selectedComponent === 'weather-table'"></app-weather-table-forecast>
   <app-temperature-chart *ngIf="selectedComponent === 'temperature-chart'"></app-temperature-chart>
   <app-heat-index-calculator *ngIf="selectedComponent === 'heat-index-calculator'"></app-heat-index-calculator>
 </div>

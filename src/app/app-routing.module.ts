@@ -5,7 +5,7 @@ import { RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   { 
     path: 'weather-table', 
-    loadChildren: () => import('./components/weather-table/weather-table.module').then(m => m.WeatherTableModule) 
+    loadChildren: () => import('./components/weather-table-forecast/weather-table-forecast.module').then(m => m.WeatherTableForecastModule) 
   },
   { 
     path: 'temperature-chart', 

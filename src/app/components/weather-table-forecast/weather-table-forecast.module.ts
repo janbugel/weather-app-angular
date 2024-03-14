@@ -7,11 +7,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 
-import { WeatherTableComponent } from './weather-table.component';
+import { WeatherTableForecastComponent } from './weather-table-forecast.component';
 
 @NgModule({
   declarations: [
-    WeatherTableComponent
+    WeatherTableForecastComponent
   ],
   imports: [
     CommonModule,
@@ -23,7 +23,7 @@ import { WeatherTableComponent } from './weather-table.component';
     FormsModule
   ],
   exports: [
-    WeatherTableComponent
+    WeatherTableForecastComponent
   ]
 })
-export class WeatherTableModule {}
+export class WeatherTableForecastModule {}

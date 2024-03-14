@@ -14,11 +14,11 @@ interface WeatherData {
 }
 
 @Component({
-  selector: 'app-weather-table',
-  templateUrl: './weather-table.component.html',
-  styleUrls: ['./weather-table.component.sass']
+  selector: 'app-weather-table-forecast',
+  templateUrl: './weather-table-forecast.component.html',
+  styleUrls: ['./weather-table-forecast.component.sass']
 })
-export class WeatherTableComponent implements OnInit, AfterViewInit {
+export class WeatherTableForecastComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['datetime', 'weatherState', 'temperature', 'humidity', 'pressure'];
   dataSource = new MatTableDataSource<WeatherData>();
 
