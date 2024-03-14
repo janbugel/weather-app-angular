@@ -1,7 +1,6 @@
 <mat-toolbar class="toolbar" color="primary">
   <span>London Weather ☀️🌧️</span>
   <span class="spacer"></span>
-  <!-- Desktop Navigation -->
   <div class="desktop-menu">
     <button mat-button [matMenuTriggerFor]="weatherMenu">Weather Table</button>
     <mat-menu #weatherMenu="matMenu">
@@ -11,7 +10,6 @@
     <button mat-button (click)="selectedComponent = 'temperature-chart'">Temperature Chart</button>
     <button mat-button (click)="selectedComponent = 'heat-index-calculator'">Heat Index Calculator</button>
   </div>
-  <!-- Mobile Menu Trigger -->
   <button mat-button [matMenuTriggerFor]="appMenu" class="mobile-menu">Menu</button>
   <mat-menu #appMenu="matMenu">
     <button mat-menu-item (click)="selectedComponent = 'weather-table'">Forecast Weather Table</button>
@@ -20,9 +18,16 @@
     <button mat-menu-item (click)="selectedComponent = 'heat-index-calculator'">Heat Index Calculator</button>
   </mat-menu>
 </mat-toolbar>
+<div style="margin-top: 64px;"> <!-- Adding margin here -->
+  <mat-tab-group [(selectedIndex)]="selectedTabIndex">
+    <mat-tab label="Weather Forecast Table">
+      <app-weather-table-forecast *ngIf="selectedTabIndex === 0"></app-weather-table-forecast>
+    </mat-tab>
+    <mat-tab label="Historical Weather Table">
+      <app-weather-table-historical *ngIf="selectedTabIndex === 1"></app-weather-table-historical>
+    </mat-tab>
+  </mat-tab-group>
+</div>
 <div class="content">
-  <app-weather-table-forecast *ngIf="selectedComponent === 'weather-table'"></app-weather-table-forecast>
-  <app-weather-table-historical *ngIf="selectedComponent === 'weather-historical'"></app-weather-table-historical>
-  <app-temperature-chart *ngIf="selectedComponent === 'temperature-chart'"></app-temperature-chart>
-  <app-heat-index-calculator *ngIf="selectedComponent === 'heat-index-calculator'"></app-heat-index-calculator>
+  <!-- Content will be displayed based on the tab selection -->
 </div>

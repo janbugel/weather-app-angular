@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTabsModule } from '@angular/material/tabs';
 import { WeatherTableForecastModule } from './components/weather-table-forecast/weather-table-forecast.module'; 
 import { TemperatureChartModule } from './components/temperature-chart/temperature-chart.module'; 
 import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module';
@@ -24,6 +25,7 @@ import { WeatherTableHistoricalModule } from './components/weather-table-histori
     MatToolbarModule,
     MatButtonModule,
     MatMenuModule,
+    MatTabsModule,
     WeatherTableForecastModule,
     TemperatureChartModule,
     HeatIndexCalculatorModule,

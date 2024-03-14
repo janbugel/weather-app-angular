@@ -7,4 +7,5 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   selectedComponent: 'weather-table' | 'temperature-chart' | 'heat-index-calculator' | 'weather-historical' = 'weather-table';
+  selectedTabIndex: number = 0; // Added to control the active tab
 }
