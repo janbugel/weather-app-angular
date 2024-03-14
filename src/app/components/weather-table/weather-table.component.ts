@@ -3,7 +3,7 @@ import { WeatherApiService } from '../../services/weather-api.service';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { formatDate } from '../../utils/format-date';
+import { transformWeatherData } from '../../utils/transform-weather-data';
 
 interface WeatherData {
   datetime: string;
@@ -45,7 +45,7 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
       this.paginatorPageSize = pageEvent.pageSize;
       localStorage.setItem('paginatorPageIndex', this.paginatorPageIndex.toString());
       localStorage.setItem('paginatorPageSize', this.paginatorPageSize.toString());
-      this.updatePastDays(); // This now calls updatePastDays() to reflect changes
+      this.updatePastDays();
     });
   }
 
@@ -62,15 +62,7 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
 
   private loadWeatherData(): void {
     this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
-      this.dataSource.data = data.hourly.time.map((time: string, index: number) => {
-        return {
-          datetime: formatDate(time),
-          temperature: data.hourly.temperature_2m[index],
-          humidity: data.hourly.relative_humidity_2m[index],
-          pressure: data.hourly.pressure_msl[index],
-          weatherState: this.forecastService.mapWeatherCodeToState(data.hourly.weather_code[index]),
-        };
-      });
+      this.dataSource.data = transformWeatherData(data);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     });

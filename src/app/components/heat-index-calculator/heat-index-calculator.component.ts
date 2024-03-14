@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { calculateHeatIndexFahrenheit, convertCelsiusToFahrenheit, convertFahrenheitToCelsius } from '../../utils/calculate-heat-index';
+import { calculateHeatIndexFahrenheit } from '../../utils/calculate-heat-index';
+import { convertCelsiusToFahrenheit, convertFahrenheitToCelsius } from '../../utils/temperature-conversions';
 
 @Component({
   selector: 'app-heat-index-calculator',
@@ -24,29 +25,21 @@ export class HeatIndexCalculatorComponent {
     this.message = null;
 
     if (this.temperature !== null && this.humidity !== null) {
-      if (this.temperatureUnit === 'F') {
-        if (this.temperature < 80) {
-          this.message =
-            'Heat Index value cannot be calculated for temperatures below 80°F.';
-        } else {
-          this.heatIndex = calculateHeatIndexFahrenheit(
-            this.temperature,
-            this.humidity
-          );
-          this.addToHistory();
-        }
-      } else {
-        if (this.temperature < 26.7) {
-          this.message =
-            'Heat Index value cannot be calculated for temperatures below 26.7°C.';
-        } else {
-          const tempInFahrenheit = convertCelsiusToFahrenheit(this.temperature);
-          this.heatIndex = convertFahrenheitToCelsius(
-            calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity)
-          );
-          this.addToHistory();
-        }
+      let temp = this.temperature;
+      if (this.temperatureUnit === 'C') {
+        temp = convertCelsiusToFahrenheit(this.temperature);
       }
+
+      if (temp < 80) {
+        this.message = 'Heat Index value cannot be calculated for temperatures below 26.7°C (80°F).';
+        return;
+      }
+
+      this.heatIndex = calculateHeatIndexFahrenheit(temp, this.humidity);
+      if (this.temperatureUnit === 'C') {
+        this.heatIndex = convertFahrenheitToCelsius(this.heatIndex);
+      }
+      this.addToHistory();
     }
   }
 

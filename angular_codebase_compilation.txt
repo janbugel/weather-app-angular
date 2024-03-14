@@ -234,6 +234,22 @@ export class AppComponent {
 
 
 
+--- app/utils/format-date.ts ---
+export function formatDate(dateTimeString: string): string {
+    const date = new Date(dateTimeString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
+    const formattedDate = `${day}.${month}.${year}`;
+    const formattedTime = date.toLocaleTimeString('it-IT', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    return `${formattedDate}, ${formattedTime}`;
+  }
+
+
 --- app/utils/map-weather-code.ts ---
 export function mapWeatherCodeToState(code: number): string {
     switch (code) {
@@ -270,6 +286,30 @@ export function mapWeatherCodeToState(code: number): string {
   }
 
 
+--- app/utils/calculate-heat-index.ts ---
+export function calculateHeatIndexFahrenheit(temp: number, humidity: number): number {
+    let heatIndex =
+      -42.379 +
+      2.04901523 * temp +
+      10.14333127 * humidity -
+      0.22475541 * temp * humidity -
+      0.00683783 * temp ** 2 -
+      0.05481717 * humidity ** 2 +
+      0.00122874 * temp ** 2 * humidity +
+      0.00085282 * temp * humidity ** 2 -
+      0.00000199 * temp ** 2 * humidity ** 2;
+    return Math.round(heatIndex * 10) / 10;
+}
+
+export function convertCelsiusToFahrenheit(celsius: number): number {
+    return (celsius * 9) / 5 + 32;
+}
+
+export function convertFahrenheitToCelsius(fahrenheit: number): number {
+    return ((fahrenheit - 32) * 5) / 9;
+}
+
+
 --- app/components/weather-table/weather-table.component.spec.ts ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -304,52 +344,43 @@ describe('WeatherTableComponent', () => {
       <input matInput type="number" [(ngModel)]="pastDays" (ngModelChange)="updatePastDays()" min="1" max="92" name="pastDays">
     </mat-form-field>
   </div>
-  <!-- Display warning message if pastDays is more than 92 -->
   <div *ngIf="pastDays > 92" class="warning-message">
     Forecast API only stores 92 days of past data.
   </div>
   <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
 
-    <!-- Datetime Column -->
     <ng-container matColumnDef="datetime">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Date, Time</th>
       <td mat-cell *matCellDef="let element">{{ element.datetime }}</td>
     </ng-container>
 
-    <!-- Weather State Column -->
     <ng-container matColumnDef="weatherState">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Weather State</th>
       <td mat-cell *matCellDef="let element">{{ element.weatherState }}</td>
     </ng-container>
 
-    <!-- Temperature Column -->
     <ng-container matColumnDef="temperature">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Temperature (°C)</th>
       <td mat-cell *matCellDef="let element">{{ element.temperature }}</td>
     </ng-container>
 
-    <!-- Humidity Column -->
     <ng-container matColumnDef="humidity">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Humidity (%)</th>
       <td mat-cell *matCellDef="let element">{{ element.humidity }}</td>
     </ng-container>
 
-    <!-- Pressure Column -->
     <ng-container matColumnDef="pressure">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Pressure (hPa)</th>
       <td mat-cell *matCellDef="let element">{{ element.pressure }}</td>
     </ng-container>
 
-    <!-- Table Rows -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 
-  <!-- Paginator -->
-  <mat-paginator [pageSizeOptions]="[10, 15, 20, 30, 50]" showFirstLastButtons [pageIndex]="paginatorPageIndex" [pageSize]="paginatorPageSize" (page)="updatePaginatorSettings($event)">
+  <mat-paginator [pageSizeOptions]="[10, 15, 20, 30, 50]" showFirstLastButtons [pageIndex]="paginatorPageIndex" [pageSize]="paginatorPageSize">
   </mat-paginator>
 </div>
-
 
 
 --- app/components/weather-table/weather-table.module.ts ---
@@ -414,12 +445,12 @@ export class WeatherTableModule {}
 
 
 --- app/components/weather-table/weather-table.component.ts ---
-import { Component, OnInit, ViewChild, AfterViewInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { WeatherApiService } from '../../services/weather-api.service';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { PageEvent } from '@angular/material/paginator';
+import { formatDate } from '../../utils/format-date';
 
 interface WeatherData {
   datetime: string;
@@ -444,7 +475,6 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  @Output() pastDaysChanged = new EventEmitter<number>();
 
   constructor(private forecastService: WeatherApiService) {}
 
@@ -462,6 +492,7 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
       this.paginatorPageSize = pageEvent.pageSize;
       localStorage.setItem('paginatorPageIndex', this.paginatorPageIndex.toString());
       localStorage.setItem('paginatorPageSize', this.paginatorPageSize.toString());
+      this.updatePastDays(); // This now calls updatePastDays() to reflect changes
     });
   }
 
@@ -472,33 +503,15 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
 
     if (this.pastDays >= 1) {
       this.loadWeatherData();
-      this.pastDaysChanged.emit(this.pastDays);
       localStorage.setItem('pastDays', this.pastDays.toString());
     }
-  }
-
-  updatePaginatorSettings(event: PageEvent): void {
-    this.paginatorPageIndex = event.pageIndex;
-    this.paginatorPageSize = event.pageSize;
-    this.loadWeatherData();
   }
 
   private loadWeatherData(): void {
     this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
       this.dataSource.data = data.hourly.time.map((time: string, index: number) => {
-        const date = new Date(time);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear().toString();
-        const formattedDate = `${day}.${month}.${year}`;
-        const formattedTime = date.toLocaleTimeString('it-IT', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        });
-
         return {
-          datetime: `${formattedDate}, ${formattedTime}`,
+          datetime: formatDate(time),
           temperature: data.hourly.temperature_2m[index],
           humidity: data.hourly.relative_humidity_2m[index],
           pressure: data.hourly.pressure_msl[index],
@@ -766,7 +779,8 @@ export class HeatIndexCalculatorModule {}
 
 --- app/components/heat-index-calculator/heat-index-calculator.component.ts ---
 import { Component } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table'; // Add this import
+import { MatTableDataSource } from '@angular/material/table';
+import { calculateHeatIndexFahrenheit, convertCelsiusToFahrenheit, convertFahrenheitToCelsius } from '../../utils/calculate-heat-index';
 
 @Component({
   selector: 'app-heat-index-calculator',
@@ -779,7 +793,7 @@ export class HeatIndexCalculatorComponent {
   temperatureUnit: 'C' | 'F' = 'C';
   heatIndex: number | null = null;
   message: string | null = null;
-  history = new MatTableDataSource<{ temperature: number; humidity: number; heatIndex: number; unit: string; }>([]); // Change type to MatTableDataSource
+  history = new MatTableDataSource<{ temperature: number; humidity: number; heatIndex: number; unit: string; }>([]);
 
   constructor() {
     this.loadHistory();
@@ -795,7 +809,7 @@ export class HeatIndexCalculatorComponent {
           this.message =
             'Heat Index value cannot be calculated for temperatures below 80°F.';
         } else {
-          this.heatIndex = this.calculateHeatIndexFahrenheit(
+          this.heatIndex = calculateHeatIndexFahrenheit(
             this.temperature,
             this.humidity
           );
@@ -806,36 +820,14 @@ export class HeatIndexCalculatorComponent {
           this.message =
             'Heat Index value cannot be calculated for temperatures below 26.7°C.';
         } else {
-          const tempInFahrenheit = this.convertCelsiusToFahrenheit(this.temperature);
-          this.heatIndex = this.convertFahrenheitToCelsius(
-            this.calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity)
+          const tempInFahrenheit = convertCelsiusToFahrenheit(this.temperature);
+          this.heatIndex = convertFahrenheitToCelsius(
+            calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity)
           );
           this.addToHistory();
         }
       }
     }
-  }
-
-  private calculateHeatIndexFahrenheit(temp: number, humidity: number): number {
-    let heatIndex =
-      -42.379 +
-      2.04901523 * temp +
-      10.14333127 * humidity -
-      0.22475541 * temp * humidity -
-      0.00683783 * temp ** 2 -
-      0.05481717 * humidity ** 2 +
-      0.00122874 * temp ** 2 * humidity +
-      0.00085282 * temp * humidity ** 2 -
-      0.00000199 * temp ** 2 * humidity ** 2;
-    return Math.round(heatIndex * 10) / 10;
-  }
-
-  private convertCelsiusToFahrenheit(celsius: number): number {
-    return (celsius * 9) / 5 + 32;
-  }
-
-  private convertFahrenheitToCelsius(fahrenheit: number): number {
-    return ((fahrenheit - 32) * 5) / 9;
   }
 
   private addToHistory(): void {
@@ -859,7 +851,6 @@ export class HeatIndexCalculatorComponent {
     }
   }
 }
-
 
 
 --- app/components/heat-index-calculator/heat-index-calculator.component.html ---

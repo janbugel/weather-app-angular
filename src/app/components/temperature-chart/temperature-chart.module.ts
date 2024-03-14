@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { TemperatureChartComponent } from './temperature-chart.component';
 
 @NgModule({
@@ -11,7 +10,7 @@ import { TemperatureChartComponent } from './temperature-chart.component';
     CommonModule
   ],
   exports: [
-    TemperatureChartComponent
+    TemperatureChartComponent 
   ]
 })
 export class TemperatureChartModule {}
