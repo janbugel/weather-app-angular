@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { WeatherApiService } from '../../services/weather-api.service';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { formatDate } from '../../utils/format-date';
@@ -40,9 +40,12 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
     this.paginator.pageIndex = this.paginatorPageIndex;
     this.paginator.pageSize = this.paginatorPageSize;
-    this.paginator.page.subscribe(() => {
+    this.paginator.page.subscribe((pageEvent: PageEvent) => {
+      this.paginatorPageIndex = pageEvent.pageIndex;
+      this.paginatorPageSize = pageEvent.pageSize;
       localStorage.setItem('paginatorPageIndex', this.paginatorPageIndex.toString());
       localStorage.setItem('paginatorPageSize', this.paginatorPageSize.toString());
+      this.updatePastDays(); // This now calls updatePastDays() to reflect changes
     });
   }
 

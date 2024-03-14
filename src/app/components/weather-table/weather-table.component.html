@@ -5,48 +5,40 @@
       <input matInput type="number" [(ngModel)]="pastDays" (ngModelChange)="updatePastDays()" min="1" max="92" name="pastDays">
     </mat-form-field>
   </div>
-  <!-- Display warning message if pastDays is more than 92 -->
   <div *ngIf="pastDays > 92" class="warning-message">
     Forecast API only stores 92 days of past data.
   </div>
   <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
 
-    <!-- Datetime Column -->
     <ng-container matColumnDef="datetime">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Date, Time</th>
       <td mat-cell *matCellDef="let element">{{ element.datetime }}</td>
     </ng-container>
 
-    <!-- Weather State Column -->
     <ng-container matColumnDef="weatherState">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Weather State</th>
       <td mat-cell *matCellDef="let element">{{ element.weatherState }}</td>
     </ng-container>
 
-    <!-- Temperature Column -->
     <ng-container matColumnDef="temperature">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Temperature (°C)</th>
       <td mat-cell *matCellDef="let element">{{ element.temperature }}</td>
     </ng-container>
 
-    <!-- Humidity Column -->
     <ng-container matColumnDef="humidity">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Humidity (%)</th>
       <td mat-cell *matCellDef="let element">{{ element.humidity }}</td>
     </ng-container>
 
-    <!-- Pressure Column -->
     <ng-container matColumnDef="pressure">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Pressure (hPa)</th>
       <td mat-cell *matCellDef="let element">{{ element.pressure }}</td>
     </ng-container>
 
-    <!-- Table Rows -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 
-  <!-- Paginator -->
-  <mat-paginator [pageSizeOptions]="[10, 15, 20, 30, 50]" showFirstLastButtons [pageIndex]="paginatorPageIndex" [pageSize]="paginatorPageSize" (page)="updatePaginatorSettings($event)">
+  <mat-paginator [pageSizeOptions]="[10, 15, 20, 30, 50]" showFirstLastButtons [pageIndex]="paginatorPageIndex" [pageSize]="paginatorPageSize">
   </mat-paginator>
 </div>
