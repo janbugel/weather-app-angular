@@ -10,9 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { WeatherTableForecastComponent } from './weather-table-forecast.component';
 
 @NgModule({
-  declarations: [
-    WeatherTableForecastComponent
-  ],
+  declarations: [WeatherTableForecastComponent],
   imports: [
     CommonModule,
     MatTableModule,
@@ -20,10 +18,8 @@ import { WeatherTableForecastComponent } from './weather-table-forecast.componen
     MatSortModule,
     MatInputModule,
     MatFormFieldModule,
-    FormsModule
+    FormsModule,
   ],
-  exports: [
-    WeatherTableForecastComponent
-  ]
+  exports: [WeatherTableForecastComponent],
 })
 export class WeatherTableForecastModule {}
