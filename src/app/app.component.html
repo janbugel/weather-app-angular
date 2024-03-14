@@ -2,32 +2,25 @@
   <span>London Weather ☀️🌧️</span>
   <span class="spacer"></span>
   <div class="desktop-menu">
-    <button mat-button [matMenuTriggerFor]="weatherMenu">Weather Table</button>
-    <mat-menu #weatherMenu="matMenu">
-      <button mat-menu-item (click)="selectedComponent = 'weather-table'">Forecast</button>
-      <button mat-menu-item (click)="selectedComponent = 'weather-historical'">Historical</button>
-    </mat-menu>
+    <button mat-button (click)="selectedComponent = 'weather-table'">Weather Table</button>
     <button mat-button (click)="selectedComponent = 'temperature-chart'">Temperature Chart</button>
     <button mat-button (click)="selectedComponent = 'heat-index-calculator'">Heat Index Calculator</button>
   </div>
   <button mat-button [matMenuTriggerFor]="appMenu" class="mobile-menu">Menu</button>
   <mat-menu #appMenu="matMenu">
-    <button mat-menu-item (click)="selectedComponent = 'weather-table'">Forecast Weather Table</button>
-    <button mat-menu-item (click)="selectedComponent = 'weather-historical'">Historical Weather Table</button>
+    <button mat-menu-item (click)="selectedComponent = 'weather-table'">Weather Table</button>
     <button mat-menu-item (click)="selectedComponent = 'temperature-chart'">Temperature Chart</button>
     <button mat-menu-item (click)="selectedComponent = 'heat-index-calculator'">Heat Index Calculator</button>
   </mat-menu>
 </mat-toolbar>
-<div style="margin-top: 64px;"> <!-- Adding margin here -->
+<div class="table-tabs">
   <mat-tab-group [(selectedIndex)]="selectedTabIndex">
-    <mat-tab label="Weather Forecast Table">
+    <mat-tab label="Forecast">
       <app-weather-table-forecast *ngIf="selectedTabIndex === 0"></app-weather-table-forecast>
     </mat-tab>
-    <mat-tab label="Historical Weather Table">
+    <mat-tab label="Historical">
       <app-weather-table-historical *ngIf="selectedTabIndex === 1"></app-weather-table-historical>
     </mat-tab>
   </mat-tab-group>
 </div>
-<div class="content">
-  <!-- Content will be displayed based on the tab selection -->
-</div>
+<div class="content"></div>
