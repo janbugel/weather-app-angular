@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table'; // Add this import
+import { MatTableDataSource } from '@angular/material/table';
+import { calculateHeatIndexFahrenheit, convertCelsiusToFahrenheit, convertFahrenheitToCelsius } from '../../utils/calculate-heat-index';
 
 @Component({
   selector: 'app-heat-index-calculator',
@@ -12,7 +13,7 @@ export class HeatIndexCalculatorComponent {
   temperatureUnit: 'C' | 'F' = 'C';
   heatIndex: number | null = null;
   message: string | null = null;
-  history = new MatTableDataSource<{ temperature: number; humidity: number; heatIndex: number; unit: string; }>([]); // Change type to MatTableDataSource
+  history = new MatTableDataSource<{ temperature: number; humidity: number; heatIndex: number; unit: string; }>([]);
 
   constructor() {
     this.loadHistory();
@@ -28,7 +29,7 @@ export class HeatIndexCalculatorComponent {
           this.message =
             'Heat Index value cannot be calculated for temperatures below 80°F.';
         } else {
-          this.heatIndex = this.calculateHeatIndexFahrenheit(
+          this.heatIndex = calculateHeatIndexFahrenheit(
             this.temperature,
             this.humidity
           );
@@ -39,36 +40,14 @@ export class HeatIndexCalculatorComponent {
           this.message =
             'Heat Index value cannot be calculated for temperatures below 26.7°C.';
         } else {
-          const tempInFahrenheit = this.convertCelsiusToFahrenheit(this.temperature);
-          this.heatIndex = this.convertFahrenheitToCelsius(
-            this.calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity)
+          const tempInFahrenheit = convertCelsiusToFahrenheit(this.temperature);
+          this.heatIndex = convertFahrenheitToCelsius(
+            calculateHeatIndexFahrenheit(tempInFahrenheit, this.humidity)
           );
           this.addToHistory();
         }
       }
     }
-  }
-
-  private calculateHeatIndexFahrenheit(temp: number, humidity: number): number {
-    let heatIndex =
-      -42.379 +
-      2.04901523 * temp +
-      10.14333127 * humidity -
-      0.22475541 * temp * humidity -
-      0.00683783 * temp ** 2 -
-      0.05481717 * humidity ** 2 +
-      0.00122874 * temp ** 2 * humidity +
-      0.00085282 * temp * humidity ** 2 -
-      0.00000199 * temp ** 2 * humidity ** 2;
-    return Math.round(heatIndex * 10) / 10;
-  }
-
-  private convertCelsiusToFahrenheit(celsius: number): number {
-    return (celsius * 9) / 5 + 32;
-  }
-
-  private convertFahrenheitToCelsius(fahrenheit: number): number {
-    return ((fahrenheit - 32) * 5) / 9;
   }
 
   private addToHistory(): void {

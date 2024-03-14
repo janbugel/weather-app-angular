@@ -9,7 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { WeatherTableModule } from './components/weather-table/weather-table.module'; 
 import { TemperatureChartModule } from './components/temperature-chart/temperature-chart.module'; 
-import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module'; 
+import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async'; 
 
 @NgModule({
   declarations: [
@@ -27,7 +28,9 @@ import { HeatIndexCalculatorModule } from './components/heat-index-calculator/he
     TemperatureChartModule, 
     HeatIndexCalculatorModule, 
   ],
-  providers: [],
+  providers: [
+    provideAnimationsAsync()
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

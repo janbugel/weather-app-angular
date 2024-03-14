@@ -7,7 +7,7 @@ import {
   ActiveElement,
   ChartType,
 } from 'chart.js';
-import { ForecastService } from '../../services/forecast.service';
+import { WeatherApiService } from '../../services/weather-api.service';
 
 @Component({
   selector: 'app-temperature-chart',
@@ -20,7 +20,7 @@ export class TemperatureChartComponent implements AfterViewInit {
   private pastDays: number;
   private chart?: Chart;
 
-  constructor(private forecastService: ForecastService) {
+  constructor(private forecastService: WeatherApiService) {
     Chart.register(...registerables);
     this.pastDays = parseInt(localStorage.getItem('pastDays') || '7');
   }

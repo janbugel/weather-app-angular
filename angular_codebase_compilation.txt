@@ -1,6 +1,70 @@
 
---- app.component.html ---
-<mat-toolbar class= toolbar, color="primary">
+--- index.html ---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>weather app</title>
+    <base href="/" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap"
+      rel="stylesheet"
+    />
+
+    
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+  <body class="mat-typography">
+    <app-root></app-root>
+  </body>
+</html>
+
+
+
+--- main.ts ---
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
+import { AppModule } from './app/app.module';
+
+platformBrowserDynamic()
+  .bootstrapModule(AppModule)
+  .catch((err) => console.error(err));
+
+
+
+--- styles.sass ---
+.app-toolbar
+  display: flex
+  align-items: center
+  justify-content: space-between
+  .logo-container .sun-emoji
+    font-size: 24px
+    margin-right: 20px
+  .spacer
+    flex: 1
+  .tabs-container .menu-icon
+    margin-right: 16px
+    background: none
+    border: none
+    display: none
+  @media (max-width: 768px)
+    .desktop-tabs
+      display: none
+    .menu-icon
+      display: inline
+
+
+
+--- app/app.component.html ---
+<mat-toolbar class="toolbar" color="primary">
   <span>London Weather ☀️🌧️</span>
   <span class="spacer"></span>
   <!-- Desktop Navigation -->
@@ -25,7 +89,7 @@
 
 
 
---- app-routing.module.ts ---
+--- app/app-routing.module.ts ---
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
@@ -53,7 +117,7 @@ export class AppRoutingModule {}
 
 
 
---- app.component.spec.ts ---
+--- app/app.component.spec.ts ---
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
@@ -89,7 +153,7 @@ describe('AppComponent', () => {
 
 
 
---- app.module.ts ---
+--- app/app.module.ts ---
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
@@ -101,7 +165,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { WeatherTableModule } from './components/weather-table/weather-table.module'; 
 import { TemperatureChartModule } from './components/temperature-chart/temperature-chart.module'; 
-import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module'; 
+import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async'; 
 
 @NgModule({
   declarations: [
@@ -119,13 +184,16 @@ import { HeatIndexCalculatorModule } from './components/heat-index-calculator/he
     TemperatureChartModule, 
     HeatIndexCalculatorModule, 
   ],
-  providers: [],
+  providers: [
+    provideAnimationsAsync()
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}
 
 
---- app.component.ts ---
+
+--- app/app.component.ts ---
 import { Component } from '@angular/core';
 
 @Component({
@@ -138,12 +206,21 @@ export class AppComponent {
 }
 
 
---- app.component.sass ---
+--- app/app.component.sass ---
+.toolbar
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  padding: 0 20px  
+  width: 100%
+  
 .spacer
   flex: 1 1 auto
 
 .content
   margin: 20px
+  padding-top: 64px
 
 .desktop-menu
   display: none
@@ -155,11 +232,45 @@ export class AppComponent {
   @media (min-width: 768px)
     display: none
 
-.toolbar
-  margin: 0px
 
 
---- components/weather-table/weather-table.component.spec.ts ---
+--- app/utils/map-weather-code.ts ---
+export function mapWeatherCodeToState(code: number): string {
+    switch (code) {
+      case 0: return 'Clear sky';
+      case 1: return 'Mainly clear';
+      case 2: return 'Partly cloudy';
+      case 3: return 'Cloudy';
+      case 45: return 'Fog';
+      case 48: return 'Depositing rime fog';
+      case 51: return 'Light drizzle';
+      case 53: return 'Moderate drizzle';
+      case 55: return 'Dense drizzle';
+      case 56: return 'Light freezing drizzle';
+      case 57: return 'Dense freezing drizzle';
+      case 61: return 'Slight rain';
+      case 63: return 'Moderate rain';
+      case 65: return 'Heavy rain';
+      case 66: return 'Light freezing rain';
+      case 67: return 'Heavy freezing rain';
+      case 71: return 'Slight snow fall';
+      case 73: return 'Moderate snow fall';
+      case 75: return 'Heavy snow fall';
+      case 77: return 'Snow grains';
+      case 80: return 'Slight rain showers';
+      case 81: return 'Moderate rain showers';
+      case 82: return 'Heavy rain showers';
+      case 85: return 'Slight snow showers';
+      case 86: return 'Heavy snow showers';
+      case 95: return 'Thunderstorm: Slight or moderate';
+      case 96: return 'Thunderstorm with light hail';
+      case 99: return 'Thunderstorm with heavy hail';
+      default: return 'Unknown';
+    }
+  }
+
+
+--- app/components/weather-table/weather-table.component.spec.ts ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WeatherTableComponent } from './weather-table.component';
@@ -185,7 +296,7 @@ describe('WeatherTableComponent', () => {
 
 
 
---- components/weather-table/weather-table.component.html ---
+--- app/components/weather-table/weather-table.component.html ---
 <div class="weather-table-container">
   <div class="past-days-selector">
     <mat-form-field appearance="fill">
@@ -241,7 +352,7 @@ describe('WeatherTableComponent', () => {
 
 
 
---- components/weather-table/weather-table.module.ts ---
+--- app/components/weather-table/weather-table.module.ts ---
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -274,7 +385,7 @@ export class WeatherTableModule {}
 
 
 
---- components/weather-table/weather-table.component.sass ---
+--- app/components/weather-table/weather-table.component.sass ---
 .weather-table-container
   display: block
   overflow-x: auto
@@ -302,9 +413,9 @@ export class WeatherTableModule {}
   align-items: center
 
 
---- components/weather-table/weather-table.component.ts ---
+--- app/components/weather-table/weather-table.component.ts ---
 import { Component, OnInit, ViewChild, AfterViewInit, Output, EventEmitter } from '@angular/core';
-import { ForecastService } from '../../services/forecast.service';
+import { WeatherApiService } from '../../services/weather-api.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -335,7 +446,7 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @Output() pastDaysChanged = new EventEmitter<number>();
 
-  constructor(private forecastService: ForecastService) {}
+  constructor(private forecastService: WeatherApiService) {}
 
   ngOnInit(): void {
     this.loadWeatherData();
@@ -366,6 +477,12 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
     }
   }
 
+  updatePaginatorSettings(event: PageEvent): void {
+    this.paginatorPageIndex = event.pageIndex;
+    this.paginatorPageSize = event.pageSize;
+    this.loadWeatherData();
+  }
+
   private loadWeatherData(): void {
     this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
       this.dataSource.data = data.hourly.time.map((time: string, index: number) => {
@@ -385,63 +502,23 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
           temperature: data.hourly.temperature_2m[index],
           humidity: data.hourly.relative_humidity_2m[index],
           pressure: data.hourly.pressure_msl[index],
-          weatherState: this.mapWeatherCodeToState(data.hourly.weather_code[index]),
+          weatherState: this.forecastService.mapWeatherCodeToState(data.hourly.weather_code[index]),
         };
       });
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     });
   }
-
-  private mapWeatherCodeToState(code: number): string {
-    switch (code) {
-      case 0: return 'Clear sky';
-      case 1: return 'Mainly clear';
-      case 2: return 'Partly cloudy';
-      case 3: return 'Cloudy';
-      case 45: return 'Fog';
-      case 48: return 'Depositing rime fog';
-      case 51: return 'Light drizzle';
-      case 53: return 'Moderate drizzle';
-      case 55: return 'Dense drizzle';
-      case 56: return 'Light freezing drizzle';
-      case 57: return 'Dense freezing drizzle';
-      case 61: return 'Slight rain';
-      case 63: return 'Moderate rain';
-      case 65: return 'Heavy rain';
-      case 66: return 'Light freezing rain';
-      case 67: return 'Heavy freezing rain';
-      case 71: return 'Slight snow fall';
-      case 73: return 'Moderate snow fall';
-      case 75: return 'Heavy snow fall';
-      case 77: return 'Snow grains';
-      case 80: return 'Slight rain showers';
-      case 81: return 'Moderate rain showers';
-      case 82: return 'Heavy rain showers';
-      case 85: return 'Slight snow showers';
-      case 86: return 'Heavy snow showers';
-      case 95: return 'Thunderstorm: Slight or moderate';
-      case 96: return 'Thunderstorm with light hail';
-      case 99: return 'Thunderstorm with heavy hail';
-      default: return 'Unknown';
-    }
-  }
-
-  updatePaginatorSettings(event: PageEvent) {
-    localStorage.setItem('paginatorPageIndex', event.pageIndex.toString());
-    localStorage.setItem('paginatorPageSize', event.pageSize.toString());
-  }
 }
 
 
-
---- components/temperature-chart/temperature-chart.component.sass ---
+--- app/components/temperature-chart/temperature-chart.component.sass ---
 .temperature-chart-container
   canvas
     height: 400px
 
 
---- components/temperature-chart/temperature-chart.component.ts ---
+--- app/components/temperature-chart/temperature-chart.component.ts ---
 import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import {
   Chart,
@@ -451,7 +528,7 @@ import {
   ActiveElement,
   ChartType,
 } from 'chart.js';
-import { ForecastService } from '../../services/forecast.service';
+import { WeatherApiService } from '../../services/weather-api.service';
 
 @Component({
   selector: 'app-temperature-chart',
@@ -464,7 +541,7 @@ export class TemperatureChartComponent implements AfterViewInit {
   private pastDays: number;
   private chart?: Chart;
 
-  constructor(private forecastService: ForecastService) {
+  constructor(private forecastService: WeatherApiService) {
     Chart.register(...registerables);
     this.pastDays = parseInt(localStorage.getItem('pastDays') || '7');
   }
@@ -563,14 +640,14 @@ export class TemperatureChartComponent implements AfterViewInit {
 
 
 
---- components/temperature-chart/temperature-chart.component.html ---
+--- app/components/temperature-chart/temperature-chart.component.html ---
 <div class="temperature-chart-container">
   <canvas #temperatureChart></canvas>
 </div>
 
 
 
---- components/temperature-chart/temperature-chart.component.spec.ts ---
+--- app/components/temperature-chart/temperature-chart.component.spec.ts ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TemperatureChartComponent } from './temperature-chart.component';
@@ -596,7 +673,7 @@ describe('TemperatureChartComponent', () => {
 
 
 
---- components/temperature-chart/temperature-chart.module.ts ---
+--- app/components/temperature-chart/temperature-chart.module.ts ---
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -617,7 +694,7 @@ export class TemperatureChartModule {}
 
 
 
---- components/heat-index-calculator/heat-index-calculator.module.ts ---
+--- app/components/heat-index-calculator/heat-index-calculator.module.ts ---
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -652,7 +729,7 @@ export class HeatIndexCalculatorModule {}
 
 
 
---- components/heat-index-calculator/heat-index-calculator.component.sass ---
+--- app/components/heat-index-calculator/heat-index-calculator.component.sass ---
 .heat-index-calculator-container
   display: flex
   flex-direction: column
@@ -687,7 +764,7 @@ export class HeatIndexCalculatorModule {}
 
 
 
---- components/heat-index-calculator/heat-index-calculator.component.ts ---
+--- app/components/heat-index-calculator/heat-index-calculator.component.ts ---
 import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table'; // Add this import
 
@@ -785,7 +862,7 @@ export class HeatIndexCalculatorComponent {
 
 
 
---- components/heat-index-calculator/heat-index-calculator.component.html ---
+--- app/components/heat-index-calculator/heat-index-calculator.component.html ---
 <div class="heat-index-calculator-container">
   <mat-card class="heat-index-card">
     <mat-card-header>
@@ -849,7 +926,7 @@ export class HeatIndexCalculatorComponent {
 
 
 
---- components/heat-index-calculator/heat-index-calculator.component.spec.ts ---
+--- app/components/heat-index-calculator/heat-index-calculator.component.spec.ts ---
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HeatIndexCalculatorComponent } from './heat-index-calculator.component';
@@ -875,15 +952,16 @@ describe('HeatIndexCalculatorComponent', () => {
 
 
 
---- services/forecast.service.ts ---
+--- app/services/weather-api.service.ts ---
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { mapWeatherCodeToState } from '../utils/map-weather-code';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ForecastService {
+export class WeatherApiService {
   private forecastBaseUrl = 'https://api.open-meteo.com/v1/forecast';
   private historicalBaseUrl = 'https://archive-api.open-meteo.com/v1/archive';
 
@@ -909,26 +987,31 @@ export class ForecastService {
     };
     return this.http.get(this.historicalBaseUrl, { params });
   }
+
+  public mapWeatherCodeToState = mapWeatherCodeToState;
 }
 
 
-
---- services/forecast.service.spec.ts ---
+--- app/services/weather-api.service.spec.ts ---
 import { TestBed } from '@angular/core/testing';
 
-import { ForecastService } from './forecast.service';
+import { WeatherApiService } from './weather-api.service';
 
-describe('ForecastService', () => {
-  let service: ForecastService;
+describe('WeatherApiService', () => {
+  let service: WeatherApiService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ForecastService);
+    service = TestBed.inject(WeatherApiService);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 });
+
+
+
+--- assets/.gitkeep ---
 
 

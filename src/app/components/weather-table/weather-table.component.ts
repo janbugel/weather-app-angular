@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, AfterViewInit, Output, EventEmitter } from '@angular/core';
-import { ForecastService } from '../../services/forecast.service';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { WeatherApiService } from '../../services/weather-api.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { PageEvent } from '@angular/material/paginator';
+import { formatDate } from '../../utils/format-date';
 
 interface WeatherData {
   datetime: string;
@@ -28,9 +28,8 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  @Output() pastDaysChanged = new EventEmitter<number>();
 
-  constructor(private forecastService: ForecastService) {}
+  constructor(private forecastService: WeatherApiService) {}
 
   ngOnInit(): void {
     this.loadWeatherData();
@@ -41,9 +40,7 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
     this.paginator.pageIndex = this.paginatorPageIndex;
     this.paginator.pageSize = this.paginatorPageSize;
-    this.paginator.page.subscribe((pageEvent: PageEvent) => {
-      this.paginatorPageIndex = pageEvent.pageIndex;
-      this.paginatorPageSize = pageEvent.pageSize;
+    this.paginator.page.subscribe(() => {
       localStorage.setItem('paginatorPageIndex', this.paginatorPageIndex.toString());
       localStorage.setItem('paginatorPageSize', this.paginatorPageSize.toString());
     });
@@ -56,7 +53,6 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
 
     if (this.pastDays >= 1) {
       this.loadWeatherData();
-      this.pastDaysChanged.emit(this.pastDays);
       localStorage.setItem('pastDays', this.pastDays.toString());
     }
   }
@@ -64,19 +60,8 @@ export class WeatherTableComponent implements OnInit, AfterViewInit {
   private loadWeatherData(): void {
     this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
       this.dataSource.data = data.hourly.time.map((time: string, index: number) => {
-        const date = new Date(time);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear().toString();
-        const formattedDate = `${day}.${month}.${year}`;
-        const formattedTime = date.toLocaleTimeString('it-IT', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        });
-
         return {
-          datetime: `${formattedDate}, ${formattedTime}`,
+          datetime: formatDate(time),
           temperature: data.hourly.temperature_2m[index],
           humidity: data.hourly.relative_humidity_2m[index],
           pressure: data.hourly.pressure_msl[index],
