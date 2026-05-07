@@ -32,11 +32,12 @@ https://janbugel.github.io/weather-app-angular/
 - copy index.html a and name it 404.html
 - extract files from /docs/browser into /docs because idk why angular does this (SSR related - https://github.com/angular/angular-cli/issues/26304) 
 
-### Cloudflare Pages
-The repo ships `src/_redirects` (SPA fallback) and `src/_headers` (long-term
-caching for hashed assets), both wired up via `angular.json` so they end up
-in the build output. In the Cloudflare dashboard → Workers & Pages →
-Create → Pages → Connect to Git, pick this repo and configure:
+### Cloudflare Pages / Workers Assets
+The repo ships a `wrangler.jsonc` that points at the Angular build output and
+enables SPA fallback (`not_found_handling: "single-page-application"`), plus a
+`src/_headers` (long-term caching for hashed assets) wired into `angular.json`.
+In the Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to
+Git, pick this repo and configure:
 
 - Framework preset: Angular
 - Build command: `npm install && npm run build:cloudflare`
