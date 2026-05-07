@@ -18,9 +18,10 @@ const HEAT_INDEX_MIN_F = 80;
 const HEAT_INDEX_MIN_C = 26.7;
 
 @Component({
-  selector: 'app-heat-index-calculator',
-  templateUrl: './heat-index-calculator.component.html',
-  styleUrls: ['./heat-index-calculator.component.sass'],
+    selector: 'app-heat-index-calculator',
+    templateUrl: './heat-index-calculator.component.html',
+    styleUrls: ['./heat-index-calculator.component.sass'],
+    standalone: false
 })
 export class HeatIndexCalculatorComponent implements OnInit, OnDestroy {
   temperature: number | null = null;

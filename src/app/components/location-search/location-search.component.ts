@@ -7,9 +7,10 @@ import { SettingsService } from '../../services/settings.service';
 import { GeocodingResult, WeatherLocation } from '../../models/weather.types';
 
 @Component({
-  selector: 'app-location-search',
-  templateUrl: './location-search.component.html',
-  styleUrls: ['./location-search.component.sass'],
+    selector: 'app-location-search',
+    templateUrl: './location-search.component.html',
+    styleUrls: ['./location-search.component.sass'],
+    standalone: false
 })
 export class LocationSearchComponent implements OnInit, OnDestroy {
   readonly searchControl = new FormControl<string>('', { nonNullable: true });

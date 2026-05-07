@@ -24,9 +24,10 @@ import {
 } from '../../models/weather.types';
 
 @Component({
-  selector: 'app-weather-table-historical',
-  templateUrl: './weather-table-historical.component.html',
-  styleUrls: ['./weather-table-historical.component.sass'],
+    selector: 'app-weather-table-historical',
+    templateUrl: './weather-table-historical.component.html',
+    styleUrls: ['./weather-table-historical.component.sass'],
+    standalone: false
 })
 export class WeatherTableHistoricalComponent
   implements OnInit, AfterViewInit, OnDestroy

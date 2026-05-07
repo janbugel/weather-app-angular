@@ -23,9 +23,10 @@ import {
 } from '../../models/weather.types';
 
 @Component({
-  selector: 'app-temperature-chart',
-  templateUrl: './temperature-chart.component.html',
-  styleUrls: ['./temperature-chart.component.sass'],
+    selector: 'app-temperature-chart',
+    templateUrl: './temperature-chart.component.html',
+    styleUrls: ['./temperature-chart.component.sass'],
+    standalone: false
 })
 export class TemperatureChartComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('forecastChart') forecastChartRef!: ElementRef<HTMLCanvasElement>;

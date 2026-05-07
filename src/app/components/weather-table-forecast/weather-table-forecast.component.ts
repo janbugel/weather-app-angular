@@ -23,9 +23,10 @@ import {
 } from '../../models/weather.types';
 
 @Component({
-  selector: 'app-weather-table-forecast',
-  templateUrl: './weather-table-forecast.component.html',
-  styleUrls: ['./weather-table-forecast.component.sass'],
+    selector: 'app-weather-table-forecast',
+    templateUrl: './weather-table-forecast.component.html',
+    styleUrls: ['./weather-table-forecast.component.sass'],
+    standalone: false
 })
 export class WeatherTableForecastComponent
   implements OnInit, AfterViewInit, OnDestroy
