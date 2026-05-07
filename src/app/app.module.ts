@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -14,24 +14,17 @@ import { TemperatureChartModule } from './components/temperature-chart/temperatu
 import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module';
 import { WeatherTableHistoricalModule } from './components/weather-table-historical/weather-table-historical.module';
 
-@NgModule({
-  declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    HttpClientModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatIconModule,
-    LocationSearchModule,
-    WeatherTableForecastModule,
-    TemperatureChartModule,
-    HeatIndexCalculatorModule,
-    WeatherTableHistoricalModule,
-  ],
-  providers: [],
-  bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [AppComponent],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatMenuModule,
+        MatIconModule,
+        LocationSearchModule,
+        WeatherTableForecastModule,
+        TemperatureChartModule,
+        HeatIndexCalculatorModule,
+        WeatherTableHistoricalModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {}
