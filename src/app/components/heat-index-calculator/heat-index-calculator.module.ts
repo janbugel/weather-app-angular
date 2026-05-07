@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 
 import { HeatIndexCalculatorComponent } from './heat-index-calculator.component';
 
@@ -21,6 +22,7 @@ import { HeatIndexCalculatorComponent } from './heat-index-calculator.component'
     MatInputModule,
     MatSelectModule,
     MatTableModule,
+    MatIconModule,
   ],
   exports: [HeatIndexCalculatorComponent],
 })

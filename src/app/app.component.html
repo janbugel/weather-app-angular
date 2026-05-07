@@ -1,28 +1,65 @@
 <mat-toolbar class="toolbar" color="primary">
-  <span>London Weather ☀️🌧️</span>
+  <span class="brand">
+    <mat-icon class="brand-icon">wb_sunny</mat-icon>
+    <span class="brand-text">
+      Weather<span class="brand-location" *ngIf="location"> · {{ location.name }}</span>
+    </span>
+  </span>
+
   <span class="spacer"></span>
-  <!-- Desktop Navigation -->
-  <div class="desktop-menu">
-    <button mat-button [matMenuTriggerFor]="weatherMenu">Weather Table</button>
-    <mat-menu #weatherMenu="matMenu">
-      <button mat-menu-item (click)="selectedComponent = 'weather-table'">Forecast</button>
-      <button mat-menu-item (click)="selectedComponent = 'weather-historical'">Historical</button>
-    </mat-menu>
-    <button mat-button (click)="selectedComponent = 'temperature-chart'">Temperature Charts</button>
-    <button mat-button (click)="selectedComponent = 'heat-index-calculator'">Heat Index Calculator</button>
+
+  <div class="search-slot">
+    <app-location-search></app-location-search>
   </div>
-  <!-- Mobile Menu Trigger -->
-  <button mat-button [matMenuTriggerFor]="appMenu" class="mobile-menu">Menu</button>
+
+  <button
+    mat-stroked-button
+    class="unit-toggle"
+    (click)="toggleUnit()"
+    aria-label="Toggle temperature unit"
+  >
+    {{ unit === 'C' ? '°C' : '°F' }}
+  </button>
+
+  <div class="desktop-menu">
+    <button
+      mat-button
+      [class.active]="selectedSection === 'weather-table'"
+      (click)="selectSection('weather-table')"
+    >Forecast</button>
+    <button
+      mat-button
+      [class.active]="selectedSection === 'weather-historical'"
+      (click)="selectSection('weather-historical')"
+    >Historical</button>
+    <button
+      mat-button
+      [class.active]="selectedSection === 'temperature-chart'"
+      (click)="selectSection('temperature-chart')"
+    >Charts</button>
+    <button
+      mat-button
+      [class.active]="selectedSection === 'heat-index-calculator'"
+      (click)="selectSection('heat-index-calculator')"
+    >Heat Index</button>
+  </div>
+
+  <button mat-icon-button [matMenuTriggerFor]="appMenu" class="mobile-menu" aria-label="Open menu">
+    <mat-icon>menu</mat-icon>
+  </button>
   <mat-menu #appMenu="matMenu">
-    <button mat-menu-item (click)="selectedComponent = 'weather-table'">Forecast Weather Table</button>
-    <button mat-menu-item (click)="selectedComponent = 'weather-historical'">Historical Weather Table</button>
-    <button mat-menu-item (click)="selectedComponent = 'temperature-chart'">Temperature Charts</button>
-    <button mat-menu-item (click)="selectedComponent = 'heat-index-calculator'">Heat Index Calculator</button>
+    <button mat-menu-item (click)="selectSection('weather-table')">Forecast</button>
+    <button mat-menu-item (click)="selectSection('weather-historical')">Historical</button>
+    <button mat-menu-item (click)="selectSection('temperature-chart')">Charts</button>
+    <button mat-menu-item (click)="selectSection('heat-index-calculator')">Heat Index</button>
   </mat-menu>
 </mat-toolbar>
-<div class="content">
-  <app-weather-table-forecast *ngIf="selectedComponent === 'weather-table'"></app-weather-table-forecast>
-  <app-weather-table-historical *ngIf="selectedComponent === 'weather-historical'"></app-weather-table-historical>
-  <app-temperature-chart *ngIf="selectedComponent === 'temperature-chart'"></app-temperature-chart>
-  <app-heat-index-calculator *ngIf="selectedComponent === 'heat-index-calculator'"></app-heat-index-calculator>
-</div>
+
+<main class="content">
+  <ng-container [ngSwitch]="selectedSection">
+    <app-weather-table-forecast *ngSwitchCase="'weather-table'"></app-weather-table-forecast>
+    <app-weather-table-historical *ngSwitchCase="'weather-historical'"></app-weather-table-historical>
+    <app-temperature-chart *ngSwitchCase="'temperature-chart'"></app-temperature-chart>
+    <app-heat-index-calculator *ngSwitchCase="'heat-index-calculator'"></app-heat-index-calculator>
+  </ng-container>
+</main>

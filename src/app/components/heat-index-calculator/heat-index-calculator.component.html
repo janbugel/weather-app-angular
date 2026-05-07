@@ -1,56 +1,69 @@
-<div class="heat-index-calculator-container">
+<div class="heat-index-container">
   <mat-card class="heat-index-card">
     <mat-card-header>
       <mat-card-title>Heat Index Calculator</mat-card-title>
+      <mat-card-subtitle>How hot it actually feels (NOAA Rothfusz regression)</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
       <form (ngSubmit)="calculateHeatIndex()" class="form-style">
-        <mat-form-field appearance="fill">
-          <mat-label>Temperature</mat-label>
-          <input matInput type="number" [(ngModel)]="temperature" name="temperature" required />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Temperature Unit</mat-label>
-          <mat-select [(ngModel)]="temperatureUnit" name="temperatureUnit">
-            <mat-option value="C">°C</mat-option>
-            <mat-option value="F">°F</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
+        <div class="row">
+          <mat-form-field appearance="outline" class="grow">
+            <mat-label>Temperature</mat-label>
+            <input matInput type="number" [(ngModel)]="temperature" name="temperature" required />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="unit">
+            <mat-label>Unit</mat-label>
+            <mat-select [ngModel]="temperatureUnit" (ngModelChange)="onUnitChange($event)" name="temperatureUnit">
+              <mat-option value="C">°C</mat-option>
+              <mat-option value="F">°F</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
           <mat-label>Relative Humidity (%)</mat-label>
-          <input matInput type="number" [(ngModel)]="humidity" name="humidity" required />
+          <input matInput type="number" min="0" max="100" [(ngModel)]="humidity" name="humidity" required />
         </mat-form-field>
-        <button mat-raised-button color="primary" type="submit">Calculate</button>
+
+        <button mat-raised-button color="primary" type="submit">
+          <mat-icon>thermostat</mat-icon>
+          Calculate
+        </button>
       </form>
-      <!-- Error Message Display -->
-      <div *ngIf="message" class="warning-message-container">
-        <p class="warning-message">{{ message }}</p>
+
+      <div *ngIf="message" class="warning-message" role="alert">
+        <mat-icon>info</mat-icon>
+        <span>{{ message }}</span>
+      </div>
+
+      <div *ngIf="heatIndex !== null" class="result">
+        <div class="result-value">{{ heatIndex | number: '1.0-1' }}°{{ temperatureUnit }}</div>
+        <div class="result-category" *ngIf="heatIndexCategory">{{ heatIndexCategory }}</div>
       </div>
     </mat-card-content>
-    <mat-card-actions *ngIf="heatIndex !== null">
-      <p class="heat-index-result">
-        Heat Index: {{ heatIndex | number:'1.0-1' }} {{ temperatureUnit }}
-      </p>
-    </mat-card-actions>
   </mat-card>
-  <!-- Display of Calculation History -->
+
   <mat-card class="history-card" *ngIf="history.data.length">
     <mat-card-header>
-      <mat-card-title>Calculation History</mat-card-title>
+      <mat-card-title>Recent Calculations</mat-card-title>
+      <span class="spacer"></span>
+      <button mat-icon-button (click)="clearHistory()" aria-label="Clear history">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
     </mat-card-header>
     <mat-card-content>
-      <table mat-table [dataSource]="history" class="mat-elevation-z8">
+      <table mat-table [dataSource]="history" class="history-table">
         <ng-container matColumnDef="temperature">
           <th mat-header-cell *matHeaderCellDef>Temperature</th>
-          <td mat-cell *matCellDef="let element">{{ element.temperature | number:'1.0-1' }} {{ element.unit }}</td>
+          <td mat-cell *matCellDef="let element">{{ element.temperature | number: '1.0-1' }}°{{ element.unit }}</td>
         </ng-container>
         <ng-container matColumnDef="humidity">
           <th mat-header-cell *matHeaderCellDef>Humidity</th>
-          <td mat-cell *matCellDef="let element">{{ element.humidity | number:'1.0-1' }}%</td>
+          <td mat-cell *matCellDef="let element">{{ element.humidity | number: '1.0-1' }}%</td>
         </ng-container>
         <ng-container matColumnDef="heatIndex">
           <th mat-header-cell *matHeaderCellDef>Heat Index</th>
-          <td mat-cell *matCellDef="let element">{{ element.heatIndex | number:'1.0-1' }} {{ element.unit }}</td>
+          <td mat-cell *matCellDef="let element">{{ element.heatIndex | number: '1.0-1' }}°{{ element.unit }}</td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="['temperature', 'humidity', 'heatIndex']"></tr>
         <tr mat-row *matRowDef="let row; columns: ['temperature', 'humidity', 'heatIndex'];"></tr>

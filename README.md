@@ -9,22 +9,21 @@ https://janbugel.github.io/weather-app-angular/
 - npm install chart.js
 - ng generate component <component_name>
 
-## Features to Implement
+## Features
 
-- [x] Design UI using Angular Material components
-- [x] Integrate Open Weather API
-- [x] Create a graph to display temperature over time
-- [x] Display past weather and forecast table
-- [x] Calculate Feel Temperature (heat index)
-- [x] weather code display on weather table from api accoriding to WMO Weather interpretation codes (WW) 
-- [x] separate modules for each component
-- [x] Improve calculator
-- [x] Improve UI
-- [ ] slider that smoothes out the chart (reduces or adds points in range)
-- [ ] Historical api to have data for more than past 92 days
-- [ ] Clean code - refactor - split features into separate compoents/services (cleanup, simplify), utils, services etc
-- [ ] Testing
-- [ ] Standalone components 
+- [x] Angular Material UI
+- [x] Open-Meteo forecast + archive integration
+- [x] Temperature charts (forecast and historical)
+- [x] Forecast and historical weather tables (sorting, pagination, persisted)
+- [x] Heat index calculator with NOAA Rothfusz regression and risk category
+- [x] WMO weather codes mapped to descriptions and Material icons
+- [x] Per-feature lazy modules and shared utils/services
+- [x] City search via Open-Meteo geocoding (replaces hard-coded London)
+- [x] Global temperature unit toggle (°C / °F), persisted
+- [x] Chart smoothing slider (centered moving average)
+- [x] Loading and error states on every data view
+- [ ] Historical API for more than the past 92 days
+- [ ] Standalone components
 
 ## deployment
 

@@ -1,6 +1,42 @@
-<div class="temperature-chart-container">
-  <canvas #temperatureChart></canvas>
-</div>
-<div class="temperature-chart-container">
-  <canvas #historicalTemperatureChart></canvas>
+<div class="charts-page">
+  <header class="charts-header">
+    <div>
+      <h2>Temperature Charts</h2>
+      <p class="subtitle" *ngIf="location">{{ location.name }}<span *ngIf="location.country">, {{ location.country }}</span></p>
+    </div>
+    <div class="smoothing">
+      <label class="smoothing-label">
+        <mat-icon>tune</mat-icon>
+        Smoothing
+        <span class="smoothing-value">{{ smoothing }}</span>
+      </label>
+      <mat-slider min="1" max="24" step="1" discrete>
+        <input matSliderThumb [value]="smoothing" (valueChange)="onSmoothingChange($event)" />
+      </mat-slider>
+    </div>
+  </header>
+
+  <section class="chart-card">
+    <h3>Forecast</h3>
+    <mat-progress-bar *ngIf="loadingForecast" mode="indeterminate"></mat-progress-bar>
+    <div *ngIf="forecastError" class="error-message" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ forecastError }}</span>
+    </div>
+    <div class="chart-canvas">
+      <canvas #forecastChart></canvas>
+    </div>
+  </section>
+
+  <section class="chart-card">
+    <h3>Historical</h3>
+    <mat-progress-bar *ngIf="loadingHistorical" mode="indeterminate"></mat-progress-bar>
+    <div *ngIf="historicalError" class="error-message" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ historicalError }}</span>
+    </div>
+    <div class="chart-canvas">
+      <canvas #historicalChart></canvas>
+    </div>
+  </section>
 </div>

@@ -1,0 +1,27 @@
+<div class="location-search">
+  <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+    <mat-label>Change city</mat-label>
+    <input
+      matInput
+      type="text"
+      [formControl]="searchControl"
+      [matAutocomplete]="auto"
+      placeholder="Search for a city"
+      autocomplete="off"
+    />
+    <mat-icon matPrefix>search</mat-icon>
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      [displayWith]="displayLocation"
+      (optionSelected)="selectLocation($event.option.value)"
+    >
+      <mat-option *ngIf="loading" disabled>Searching…</mat-option>
+      <mat-option *ngIf="!loading && results.length === 0 && searchControl.value && searchControl.value.length >= 2" disabled>
+        No matches
+      </mat-option>
+      <mat-option *ngFor="let result of results" [value]="result">
+        {{ formatName(result) }}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+</div>

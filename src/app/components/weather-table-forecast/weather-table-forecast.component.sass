@@ -1,25 +1,58 @@
 .weather-table-container
-  overflow-x: auto
-  overflow-y: auto
   width: 100%
-  margin-top: 10px
+  max-width: 1100px
+  margin: 0 auto
 
-  table
-    width: 100%
-    table-layout: fixed 
+  .header
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 16px
+    flex-wrap: wrap
+    margin-bottom: 8px
 
-    th, td
-      overflow: hidden
-      text-overflow: ellipsis
-      word-wrap: break-word
+    h2
+      margin: 0
 
-.warning-message
-  color: red 
-  display: flex
-  justify-content: center
-  align-items: center
+    .subtitle
+      margin: 4px 0 0
+      color: rgba(0, 0, 0, 0.6)
+      font-size: 14px
 
-.past-days-selector
-  display: flex
-  justify-content: center
-  align-items: center
+  .past-days-field
+    width: 140px
+
+  .status-row
+    min-height: 4px
+    margin-bottom: 8px
+
+  .table-scroll
+    overflow-x: auto
+
+    table
+      width: 100%
+
+      .weather-cell
+        display: inline-flex
+        align-items: center
+        gap: 8px
+
+      .weather-icon
+        color: rgb(96, 111, 199)
+
+      .no-data td
+        text-align: center
+        padding: 24px
+        color: rgba(0, 0, 0, 0.54)
+
+  .error-message
+    display: flex
+    align-items: center
+    gap: 8px
+    color: #b3261e
+    margin-top: 8px
+
+  .warning-message
+    color: #b86e00
+    margin-top: 8px
+    text-align: center
