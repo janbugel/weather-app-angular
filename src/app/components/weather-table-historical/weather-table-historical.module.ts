@@ -9,7 +9,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatIconModule } from '@angular/material/icon';
 import { WeatherTableHistoricalComponent } from './weather-table-historical.component';
+import { PipesModule } from '../../pipes/pipes.module';
 
 @NgModule({
   declarations: [WeatherTableHistoricalComponent],
@@ -23,7 +26,10 @@ import { WeatherTableHistoricalComponent } from './weather-table-historical.comp
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatProgressBarModule,
+    MatIconModule,
+    PipesModule,
   ],
   exports: [WeatherTableHistoricalComponent],
 })

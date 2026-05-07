@@ -1,7 +1,10 @@
 <div class="weather-table-container">
-  <h2>Weather Forecast</h2>
-  <div class="past-days-selector">
-    <mat-form-field appearance="fill">
+  <header class="header">
+    <div>
+      <h2>Weather Forecast</h2>
+      <p class="subtitle" *ngIf="location">{{ location.name }}<span *ngIf="location.country">, {{ location.country }}</span></p>
+    </div>
+    <mat-form-field appearance="outline" class="past-days-field" subscriptSizing="dynamic">
       <mat-label>Past Days</mat-label>
       <input
         matInput
@@ -13,41 +16,61 @@
         name="pastDays"
       />
     </mat-form-field>
+  </header>
+
+  <div class="status-row">
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+    <div *ngIf="error" class="error-message" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+    <div *ngIf="pastDays > 92" class="warning-message" role="alert">
+      Forecast API only stores 92 days of past data.
+    </div>
   </div>
-  <div *ngIf="pastDays > 92" class="warning-message">
-    Forecast API only stores 92 days of past data.
+
+  <div class="table-scroll">
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z2">
+      <ng-container matColumnDef="datetime">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date, Time</th>
+        <td mat-cell *matCellDef="let element">{{ element.datetime }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="weatherState">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Weather</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="weather-cell">
+            <mat-icon class="weather-icon">{{ mapWeatherCodeToIcon(element.weatherCode) }}</mat-icon>
+            <span>{{ element.weatherState }}</span>
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="temperature">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Temperature</th>
+        <td mat-cell *matCellDef="let element">{{ element.temperature | temperature: unit }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="humidity">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Humidity (%)</th>
+        <td mat-cell *matCellDef="let element">{{ element.humidity }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="pressure">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Pressure (hPa)</th>
+        <td mat-cell *matCellDef="let element">{{ element.pressure | number:'1.0-0' }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="mat-row no-data" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          <ng-container *ngIf="!loading && !error">No data to display.</ng-container>
+        </td>
+      </tr>
+    </table>
   </div>
-  <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
-    <ng-container matColumnDef="datetime">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Date, Time</th>
-      <td mat-cell *matCellDef="let element">{{ element.datetime }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="weatherState">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Weather State</th>
-      <td mat-cell *matCellDef="let element">{{ element.weatherState }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="temperature">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        Temperature (°C)
-      </th>
-      <td mat-cell *matCellDef="let element">{{ element.temperature }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="humidity">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Humidity (%)</th>
-      <td mat-cell *matCellDef="let element">{{ element.humidity }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="pressure" *ngIf="!isMobile">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Pressure (hPa)</th>
-      <td mat-cell *matCellDef="let element">{{ element.pressure }}</td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
 
   <mat-paginator
     [pageSizeOptions]="[10, 15, 20, 30, 50]"

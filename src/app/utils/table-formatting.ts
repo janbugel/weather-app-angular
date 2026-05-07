@@ -1,30 +1,35 @@
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { Subscription } from 'rxjs';
 
 export interface TableFormattingOptions<T> {
   dataSource: MatTableDataSource<T>;
   paginator: MatPaginator;
-  pageIndexKey: string;
-  pageSizeKey: string;
+  /** Namespace used for the localStorage keys; pick a unique value per table. */
+  storageNamespace: string;
 }
 
+/**
+ * Wires a paginator to a data source and persists pageIndex / pageSize
+ * under a per-table namespace. Returns the page subscription so callers
+ * can unsubscribe in ngOnDestroy.
+ */
 export function setTablePagination<T>({
   dataSource,
   paginator,
-  pageIndexKey,
-  pageSizeKey,
-}: TableFormattingOptions<T>): void {
-  const pageIndex = parseInt(localStorage.getItem(pageIndexKey) || '0');
-  const pageSize = parseInt(localStorage.getItem(pageSizeKey) || '10');
+  storageNamespace,
+}: TableFormattingOptions<T>): Subscription {
+  const indexKey = `${storageNamespace}.pageIndex`;
+  const sizeKey = `${storageNamespace}.pageSize`;
 
-  paginator.pageIndex = pageIndex;
-  paginator.pageSize = pageSize;
+  paginator.pageIndex = parseInt(localStorage.getItem(indexKey) ?? '0', 10) || 0;
+  paginator.pageSize = parseInt(localStorage.getItem(sizeKey) ?? '10', 10) || 10;
 
-  paginator.page.subscribe((event) => {
-    localStorage.setItem(pageIndexKey, event.pageIndex.toString());
-    localStorage.setItem(pageSizeKey, event.pageSize.toString());
-    dataSource.paginator = paginator;
+  const subscription = paginator.page.subscribe((event) => {
+    localStorage.setItem(indexKey, event.pageIndex.toString());
+    localStorage.setItem(sizeKey, event.pageSize.toString());
   });
 
   dataSource.paginator = paginator;
+  return subscription;
 }

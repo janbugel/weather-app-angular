@@ -7,15 +7,15 @@ import { AppComponent } from './app.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { WeatherTableForecastModule } from './components/weather-table-forecast/weather-table-forecast.module'; 
-import { TemperatureChartModule } from './components/temperature-chart/temperature-chart.module'; 
+import { MatIconModule } from '@angular/material/icon';
+import { LocationSearchModule } from './components/location-search/location-search.module';
+import { WeatherTableForecastModule } from './components/weather-table-forecast/weather-table-forecast.module';
+import { TemperatureChartModule } from './components/temperature-chart/temperature-chart.module';
 import { HeatIndexCalculatorModule } from './components/heat-index-calculator/heat-index-calculator.module';
 import { WeatherTableHistoricalModule } from './components/weather-table-historical/weather-table-historical.module';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -24,13 +24,14 @@ import { WeatherTableHistoricalModule } from './components/weather-table-histori
     MatToolbarModule,
     MatButtonModule,
     MatMenuModule,
+    MatIconModule,
+    LocationSearchModule,
     WeatherTableForecastModule,
     TemperatureChartModule,
     HeatIndexCalculatorModule,
-    WeatherTableHistoricalModule
+    WeatherTableHistoricalModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
-

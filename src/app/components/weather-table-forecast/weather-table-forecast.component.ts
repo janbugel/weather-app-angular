@@ -1,25 +1,35 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { WeatherApiService } from '../../services/weather-api.service';
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { Subject, Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { WeatherApiService } from '../../services/weather-api.service';
+import { SettingsService } from '../../services/settings.service';
 import { transformWeatherData } from '../../utils/transform-weather-data';
 import { setTablePagination } from '../../utils/table-formatting';
-
-interface WeatherData {
-  datetime: string;
-  temperature: number;
-  humidity: number;
-  pressure: number | string;
-  weatherState: string;
-}
+import { mapWeatherCodeToIcon } from '../../utils/map-weather-icon';
+import {
+  TemperatureUnit,
+  WeatherDataRow,
+  WeatherLocation,
+} from '../../models/weather.types';
 
 @Component({
   selector: 'app-weather-table-forecast',
   templateUrl: './weather-table-forecast.component.html',
   styleUrls: ['./weather-table-forecast.component.sass'],
 })
-export class WeatherTableForecastComponent implements OnInit, AfterViewInit {
+export class WeatherTableForecastComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
   displayedColumns: string[] = [
     'datetime',
     'weatherState',
@@ -27,49 +37,88 @@ export class WeatherTableForecastComponent implements OnInit, AfterViewInit {
     'humidity',
     'pressure',
   ];
-  dataSource = new MatTableDataSource<WeatherData>();
-  isMobile: boolean = false;
+  readonly dataSource = new MatTableDataSource<WeatherDataRow>();
+  isMobile = false;
+  loading = false;
+  error: string | null = null;
+  pastDays = parseInt(localStorage.getItem('pastDays') ?? '7', 10) || 7;
+  unit: TemperatureUnit = 'C';
+  location!: WeatherLocation;
 
-  pastDays = parseInt(localStorage.getItem('pastDays') || '7');
+  readonly mapWeatherCodeToIcon = mapWeatherCodeToIcon;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private forecastService: WeatherApiService) {
+  private readonly destroy$ = new Subject<void>();
+  private paginatorSub?: Subscription;
+
+  constructor(
+    private readonly forecastService: WeatherApiService,
+    private readonly settings: SettingsService
+  ) {
     this.adjustForScreenSize();
-    window.onresize = () => this.adjustForScreenSize();
   }
 
   ngOnInit(): void {
-    this.loadWeatherData();
+    this.settings.location$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((location) => {
+        this.location = location;
+        this.loadWeatherData();
+      });
+    this.settings.unit$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((unit) => (this.unit = unit));
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
-    setTablePagination({
+    this.paginatorSub = setTablePagination({
       dataSource: this.dataSource,
       paginator: this.paginator,
-      pageIndexKey: 'weatherPaginationPageIndex',
-      pageSizeKey: 'weatherPaginationPageSize',
+      storageNamespace: 'weatherForecastTable',
     });
   }
 
-  private loadWeatherData(): void {
-    this.forecastService.getWeatherForecast(this.pastDays).subscribe((data) => {
-      this.dataSource.data = transformWeatherData(data);
-      this.dataSource.sort = this.sort;
-    });
+  ngOnDestroy(): void {
+    this.paginatorSub?.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.adjustForScreenSize();
   }
 
   updatePastDays(): void {
-    if (this.pastDays > 92) {
+    if (!Number.isFinite(this.pastDays) || this.pastDays < 1 || this.pastDays > 92) {
       return;
     }
+    localStorage.setItem('pastDays', this.pastDays.toString());
+    this.loadWeatherData();
+  }
 
-    if (this.pastDays >= 1) {
-      this.loadWeatherData();
-      localStorage.setItem('pastDays', this.pastDays.toString());
-    }
+  private loadWeatherData(): void {
+    if (!this.location) return;
+    this.loading = true;
+    this.error = null;
+    this.forecastService
+      .getWeatherForecast(this.pastDays, this.location)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.dataSource.data = transformWeatherData(data);
+          if (this.sort) this.dataSource.sort = this.sort;
+          this.loading = false;
+        },
+        error: () => {
+          this.dataSource.data = [];
+          this.loading = false;
+          this.error = 'Could not load forecast data. Please try again.';
+        },
+      });
   }
 
   private adjustForScreenSize(): void {

@@ -1,27 +1,84 @@
 .toolbar
-  position: absolute
+  position: fixed
   top: 0
   left: 0
   right: 0
-  padding: 0 20px  
-  width: 100%
-  
+  z-index: 10
+  padding: 0 16px
+  gap: 12px
+  display: flex
+  align-items: center
+
+.brand
+  display: flex
+  align-items: center
+  gap: 8px
+  font-weight: 500
+  white-space: nowrap
+
+  .brand-icon
+    color: #ffd54a
+
+  .brand-location
+    color: rgba(255, 255, 255, 0.85)
+    font-weight: 400
+
 .spacer
   flex: 1 1 auto
 
-.content
-  margin: 20px
-  padding-top: 64px
+.search-slot
+  display: flex
+  align-items: center
+
+  ::ng-deep .mat-mdc-form-field
+    color: #fff
+
+  ::ng-deep .mat-mdc-text-field-wrapper
+    background: rgba(255, 255, 255, 0.16)
+    border-radius: 8px
+
+  ::ng-deep .mdc-notched-outline__leading,
+  ::ng-deep .mdc-notched-outline__notch,
+  ::ng-deep .mdc-notched-outline__trailing
+    border-color: rgba(255, 255, 255, 0.5) !important
+
+  ::ng-deep .mat-mdc-form-field-label,
+  ::ng-deep .mdc-floating-label,
+  ::ng-deep input.mat-mdc-input-element
+    color: #fff !important
+
+  ::ng-deep .mat-mdc-form-field input::placeholder
+    color: rgba(255, 255, 255, 0.7)
+
+  ::ng-deep .mat-icon
+    color: rgba(255, 255, 255, 0.85)
+
+.unit-toggle
+  min-width: 56px
+  color: #fff !important
+  border-color: rgba(255, 255, 255, 0.55) !important
 
 .desktop-menu
   display: none
-  @media (min-width: 755px)
+  gap: 8px
+
+  button.active
+    background: rgba(255, 255, 255, 0.16)
+
+  @media (min-width: 960px)
     display: flex
-    gap: 20px
 
 .mobile-menu
-  @media (min-width: 755px)
+  @media (min-width: 960px)
     display: none
 
-.table-tabs
-  margin-top: 64px
+@media (max-width: 720px)
+  .brand-text
+    display: none
+  .search-slot
+    display: none
+
+.content
+  padding: 84px 20px 32px
+  min-height: calc(100vh - 84px)
+  background: #f5f6fa
